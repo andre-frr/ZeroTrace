@@ -1,0 +1,17 @@
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+*.iml
+
+# Cache e build temporário
+dist/
+build/
+*.log
+*.tmp
+*.bak
+
+# Node (caso se use algo no futuro)
+node_modules/
