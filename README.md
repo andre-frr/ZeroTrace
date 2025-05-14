@@ -2,11 +2,14 @@
 
 > Digita. Invade. Desaparece.
 
-**ZeroTrace** é um jogo de digitação arcade desenvolvido como projeto académico de média dimensão. O jogador assume o papel de um hacker contratado para infiltrar os sistemas da FIB digitando comandos simulados o mais rápido possível antes que o sistema de deteção o apanhe.
+**ZeroTrace** é um jogo de digitação arcade desenvolvido como projeto académico de média dimensão. O jogador assume o
+papel de um hacker contratado para infiltrar os sistemas da FIB digitando comandos simulados o mais rápido possível
+antes que o sistema de deteção o apanhe.
 
 ## 🎯 Objetivo
 
-Digitar frases rapidamente e com precisão para infiltrar vários terminais da FIB. Erros aumentam a barra de alarme. Completa todos os terminais para vencer.
+Digitar frases rapidamente e com precisão para infiltrar vários terminais da FIB. Erros aumentam a barra de alarme.
+Completa todos os terminais para vencer.
 
 ## 🎮 Género
 
@@ -75,6 +78,6 @@ Estudantes e entusiastas de programação com gosto por desafios de digitação 
 
 Desenvolvido por:
 
-- André Ferreira – 220001208  
-- David Berec – 220000909  
+- André Ferreira – 220001208
+- David Berec – 220000909
 - Diogo Pedro – 220000891
