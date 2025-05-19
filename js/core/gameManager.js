@@ -1,5 +1,6 @@
-import {LevelManager} from './levelManager.js';
+import {AudioManager} from './audioManager.js';
 import {InputManager} from './inputManager.js';
+import {LevelManager} from './levelManager.js';
 import {Menu} from '../ui/menu.js';
 import {Level1} from '../../levels/level1.js';
 
@@ -11,7 +12,7 @@ export class GameManager {
         this.menu = new Menu(ctx);
         this.gameStarted = false;
 
-        // Configuração da imagem de fundo
+        // Background image setup
         this.bgImage = new Image();
         this.bgLoaded = false;
         this.bgImage.src = './assets/images/bg.webp';
@@ -19,24 +20,34 @@ export class GameManager {
             this.bgLoaded = true;
         };
 
-        // Propriedades do scroll no eixo Y
-        this.bgScrollY = 0; // Posição vertical do scroll
-        this.bgScrollSpeed = 1; // Velocidade do scroll
+        // Background scroll properties
+        this.bgScrollY = 0;
+        this.bgScrollSpeed = 1;
+
+        // AudioManager setup
+        this.audioManager = new AudioManager();
+        this.audioManager.loadSound('ambience', './assets/audio/ambience.mp3'); // Load ambience sound
+        this.audioManager.setVolume('ambience', 0.1);
     }
 
     start() {
-        // Inicializar o gestor de níveis
+        // Start ambience sound
+        window.addEventListener('click', () => {
+            this.audioManager.playSound('ambience');
+        }, {once: true});
+
+        // Initialize level manager
         this.levelManager = new LevelManager(this.ctx);
 
-        // Carregar os níveis
+        // Load levels
         const level1 = new Level1(this.ctx);
         this.levelManager.loadLevels([level1]);
 
-        // Inicializar o gestor de inputs com callback
+        // Initialize input manager with callback
         this.inputManager.initialize((key) => {
             if (!this.gameStarted && key === 'Enter') {
                 this.gameStarted = true;
-                this.levelManager.startLevel(0); // Iniciar o primeiro nível
+                this.levelManager.startLevel(0); // Start the first level
             } else if (this.gameStarted) {
                 const currentLevel = this.levelManager.levels[this.levelManager.currentLevel];
                 if (currentLevel) {
@@ -45,7 +56,7 @@ export class GameManager {
             }
         });
 
-        // Iniciar o loop do jogo
+        // Start the game loop
         this.gameLoop();
     }
 
@@ -53,16 +64,16 @@ export class GameManager {
         if (this.bgLoaded) {
             const {ctx, bgImage, bgScrollY} = this;
 
-            // Desenhar a imagem original
+            // Draw the original image
             ctx.drawImage(bgImage, 0, bgScrollY, ctx.canvas.width, ctx.canvas.height);
 
-            // Desenhar a imagem invertida diretamente abaixo da original
+            // Draw the inverted image directly below the original
             ctx.drawImage(bgImage, 0, bgScrollY - ctx.canvas.height, ctx.canvas.width, ctx.canvas.height);
 
-            // Atualizar a posição do scroll
+            // Update scroll position
             this.bgScrollY += this.bgScrollSpeed;
 
-            // Resetar a posição do scroll quando a imagem original sair completamente da vista
+            // Reset scroll position when the original image scrolls out of view
             if (this.bgScrollY >= ctx.canvas.height) {
                 this.bgScrollY = 0;
             }
@@ -70,11 +81,11 @@ export class GameManager {
     }
 
     gameLoop() {
-        // Limpar o canvas para o próximo frame
+        // Clear the canvas for the next frame
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.drawBackground();
 
-        // Mostrar a mensagem de introdução se o jogo ainda não começou
+        // Show intro message if the game hasn't started
         if (!this.gameStarted) {
             this.menu.drawIntroMessage();
         } else {
@@ -82,7 +93,7 @@ export class GameManager {
             this.levelManager.render();
         }
 
-        // Pedir o próximo frame de animação
+        // Request the next animation frame
         requestAnimationFrame(() => this.gameLoop());
     }
 }

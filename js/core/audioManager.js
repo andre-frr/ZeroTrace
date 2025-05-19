@@ -29,4 +29,14 @@ export class AudioManager {
             sound.currentTime = 0;
         }
     }
+
+    // Ajusta o volume de um som
+    setVolume(name, volume) {
+        const sound = this.sounds.get(name);
+        if (sound) {
+            sound.volume = volume;
+        } else {
+            console.error(`Som "${name}" não encontrado`);
+        }
+    }
 }

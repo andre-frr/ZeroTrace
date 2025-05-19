@@ -1,3 +1,5 @@
+import {AudioManager} from '../js/core/audioManager.js';
+
 export class Level1 {
     constructor(ctx) {
         this.ctx = ctx;
@@ -12,6 +14,28 @@ export class Level1 {
         this.currentCommandIndex = 0;
         this.input = '';
         this.completed = false;
+        this.blink = true; // For blinking underscore
+        this.blinkInterval = setInterval(() => {
+            this.blink = !this.blink;
+        }, 500); // Toggle every 500ms
+
+        this.audioManager = new AudioManager();
+        this.audioManager.loadSound('type', './assets/audio/typing.mp3'); // Load typing sound
+        this.audioManager.setVolume('type', 0.2);
+
+        this.adjustCanvasHeight();
+    }
+
+    adjustCanvasHeight() {
+        const commandHeight = 30; // Height per command
+        const baseHeight = 200; // Base height for other UI elements
+        const requiredHeight = baseHeight + this.commands.length * commandHeight;
+
+        // Dynamically adjust the canvas height
+        this.ctx.canvas.height = Math.max(this.ctx.canvas.height, requiredHeight);
+
+        // Store the height of the commands area
+        this.commandsAreaHeight = this.commands.length * commandHeight + 50; // Add padding
     }
 
     initialize() {
@@ -28,11 +52,15 @@ export class Level1 {
                 if (this.currentCommandIndex >= this.commands.length) {
                     this.completed = true;
                     console.log(`${this.name} completed!`);
+                    clearInterval(this.blinkInterval); // Stop blinking when completed
                 }
             }
         } else {
             this.input += key;
         }
+
+        // Play typing sound
+        this.audioManager.playSound('type');
     }
 
     update() {
@@ -43,16 +71,25 @@ export class Level1 {
         const {ctx} = this;
 
         // Draw the "commands to be written" area
+        const commandsAreaY = 50; // Top margin
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(ctx.canvas.width - 300, 50, 250, 150);
+        ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
-        ctx.strokeRect(ctx.canvas.width - 300, 50, 250, 150);
+        ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
 
-        // Display the current command
-        ctx.fillStyle = 'white';
+        // Display completed commands in green
+        ctx.fillStyle = 'green';
         ctx.font = '20px VT323';
         ctx.textAlign = 'left';
-        ctx.fillText(`${this.commands[this.currentCommandIndex] || 'All commands completed!'}`, ctx.canvas.width - 290, 80);
+        for (let i = 0; i < this.currentCommandIndex; i++) {
+            ctx.fillText(this.commands[i], ctx.canvas.width - 290, commandsAreaY + 30 + i * 30);
+        }
+
+        // Display the current command in white
+        if (this.currentCommandIndex < this.commands.length) {
+            ctx.fillStyle = 'white';
+            ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
+        }
 
         // Draw the "player input" area
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -60,8 +97,9 @@ export class Level1 {
         ctx.strokeStyle = 'white';
         ctx.strokeRect(50, ctx.canvas.height - 100, ctx.canvas.width - 100, 50);
 
-        // Display the player's input
-        ctx.fillStyle = 'white';
-        ctx.fillText(`admin@desktop:~$ ${this.input}`, 60, ctx.canvas.height - 70);
+        // Display the player's input with blinking underscore
+        const displayInput = this.input + (this.blink ? '_' : '');
+        ctx.fillStyle = this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
+        ctx.fillText(`admin@desktop:~$ ${displayInput}`, 60, ctx.canvas.height - 70);
     }
 }
