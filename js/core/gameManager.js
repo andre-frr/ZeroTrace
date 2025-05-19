@@ -1,6 +1,7 @@
 import {LevelManager} from './levelManager.js';
 import {InputManager} from './inputManager.js';
 import {Menu} from '../ui/menu.js';
+import {Level1} from '../../levels/level1.js';
 
 export class GameManager {
     constructor(ctx) {
@@ -24,16 +25,23 @@ export class GameManager {
     }
 
     start() {
-        // Inicializar o gestor de inputs
-        this.inputManager.initialize();
-
         // Inicializar o gestor de níveis
         this.levelManager = new LevelManager(this.ctx);
 
-        // Listener para começar o jogo ao pressionar Enter
-        window.addEventListener('keydown', (event) => {
-            if (!this.gameStarted && event.key === 'Enter') {
+        // Carregar os níveis
+        const level1 = new Level1(this.ctx);
+        this.levelManager.loadLevels([level1]);
+
+        // Inicializar o gestor de inputs com callback
+        this.inputManager.initialize((key) => {
+            if (!this.gameStarted && key === 'Enter') {
                 this.gameStarted = true;
+                this.levelManager.startLevel(0); // Iniciar o primeiro nível
+            } else if (this.gameStarted) {
+                const currentLevel = this.levelManager.levels[this.levelManager.currentLevel];
+                if (currentLevel) {
+                    currentLevel.handleInput(key);
+                }
             }
         });
 

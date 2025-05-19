@@ -1,26 +1,30 @@
-// Classe responsável por gerir a entrada do utilizador
+// js/core/inputManager.js
 export class InputManager {
     constructor() {
-        this.keysPressed = new Set(); // Conjunto de teclas atualmente pressionadas
+        this.keysPressed = new Set();
+        this.inputCallback = null;
     }
 
-    // Inicializa os event listeners para capturar a entrada do utilizador
-    initialize() {
+    initialize(inputCallback) {
+        this.inputCallback = inputCallback;
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
     }
 
-    // Evento disparado quando uma tecla é pressionada
     onKeyDown(event) {
-        this.keysPressed.add(event.key);
+        // Ignore non-character keys
+        if (event.key.length === 1 || event.key === 'Enter' || event.key === 'Backspace') {
+            this.keysPressed.add(event.key);
+            if (this.inputCallback) {
+                this.inputCallback(event.key);
+            }
+        }
     }
 
-    // Evento disparado quando uma tecla é libertada
     onKeyUp(event) {
         this.keysPressed.delete(event.key);
     }
 
-    // Verifica se uma tecla específica está pressionada
     isKeyPressed(key) {
         return this.keysPressed.has(key);
     }

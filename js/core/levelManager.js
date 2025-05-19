@@ -18,7 +18,7 @@ export class LevelManager {
             return;
         }
         this.currentLevel = levelIndex;
-        console.log(`A iniciar o nível ${levelIndex + 1}: ${this.levels[levelIndex].name}`);
+        console.log(`A iniciar o ${this.levels[levelIndex].name}`);
     }
 
     // Atualiza a lógica do nível atual
