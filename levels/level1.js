@@ -1,4 +1,5 @@
 import {AudioManager} from '../js/core/audioManager.js';
+import {ProgressTracker} from '../js/ui/progressTracker.js';
 
 export class Level1 {
     constructor(ctx) {
@@ -19,9 +20,14 @@ export class Level1 {
             this.blink = !this.blink;
         }, 500); // Toggle every 500ms
 
+        this.commandHistory = []; // Adiciona esta linha para guardar o histórico de comandos
+
         this.audioManager = new AudioManager();
         this.audioManager.loadSound('type', './assets/audio/typing.mp3'); // Load typing sound
         this.audioManager.setVolume('type', 0.2);
+
+        // Initialize Progress Tracker
+        this.progressTracker = new ProgressTracker(ctx, './assets/images/virus.png');
 
         this.adjustCanvasHeight();
     }
@@ -47,6 +53,7 @@ export class Level1 {
             this.input = this.input.slice(0, -1);
         } else if (key === 'Enter') {
             if (this.input === this.commands[this.currentCommandIndex]) {
+                this.commandHistory.push(this.input); // Adiciona o comando ao histórico
                 this.currentCommandIndex++;
                 this.input = '';
                 if (this.currentCommandIndex >= this.commands.length) {
@@ -92,14 +99,30 @@ export class Level1 {
         }
 
         // Draw the "player input" area
+        const inputAreaX = 50;
+        const inputAreaY = ctx.canvas.height - 100;
+        const inputAreaWidth = ctx.canvas.width - 100;
+        const inputAreaHeight = 50;
+        const lineHeight = 25;
+
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(50, ctx.canvas.height - 100, ctx.canvas.width - 100, 50);
+        ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, inputAreaHeight + (this.commandHistory.length * lineHeight));
         ctx.strokeStyle = 'white';
-        ctx.strokeRect(50, ctx.canvas.height - 100, ctx.canvas.width - 100, 50);
+        ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, inputAreaHeight + (this.commandHistory.length * lineHeight));
+
+        // Display command history
+        ctx.fillStyle = 'white';
+        ctx.font = '20px VT323';
+        this.commandHistory.forEach((cmd, index) => {
+            ctx.fillText(`admin@desktop:~$ ${cmd}`, inputAreaX + 10, inputAreaY - (this.commandHistory.length * lineHeight) + (index * lineHeight) + 20);
+        });
 
         // Display the player's input with blinking underscore
         const displayInput = this.input + (this.blink ? '_' : '');
         ctx.fillStyle = this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
-        ctx.fillText(`admin@desktop:~$ ${displayInput}`, 60, ctx.canvas.height - 70);
+        ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
+
+        // Draw progress tracker
+        this.progressTracker.render(this.currentCommandIndex, this.commands.length);
     }
 }
