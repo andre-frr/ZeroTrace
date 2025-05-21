@@ -1,9 +1,9 @@
-import {AudioManager} from '../core/audioManager.js';
 import {HUD} from "../ui/hud.js";
 
 export class BaseLevel {
-    constructor(ctx, name, commands, hudImagePath) {
+    constructor(ctx, game, name, commands, hudImagePath) {
         this.ctx = ctx;
+        this.game = game; // Store the game object
         this.name = name;
         this.commands = commands;
         this.currentCommandIndex = 0;
@@ -15,11 +15,6 @@ export class BaseLevel {
         }, 500);
 
         this.commandHistory = [];
-
-        this.audioManager = new AudioManager();
-        this.audioManager.loadSound('type', './assets/audio/typing.mp3');
-        this.audioManager.setVolume('type', 0.2);
-
         this.hud = new HUD(ctx, hudImagePath);
 
         this.adjustCanvasHeight();
@@ -52,7 +47,10 @@ export class BaseLevel {
             this.input += key;
         }
 
-        this.audioManager.playSound('type');
+
+        this.game.sounds.typing.currentTime = 0; // Reset playback position
+        this.game.sounds.typing.play();
+
     }
 
     update() {
@@ -72,14 +70,12 @@ export class BaseLevel {
         ctx.font = '20px VT323';
         ctx.textAlign = 'left';
         for (let i = 0; i < this.currentCommandIndex; i++) {
-            ctx.fillText(this.commands[i],
-                ctx.canvas.width - 290, commandsAreaY + 30 + i * 30);
+            ctx.fillText(this.commands[i], ctx.canvas.width - 290, commandsAreaY + 30 + i * 30);
         }
 
         if (this.currentCommandIndex < this.commands.length) {
             ctx.fillStyle = 'white';
-            ctx.fillText(this.commands[this.currentCommandIndex],
-                ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
+            ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
         const inputAreaX = 50;
@@ -98,15 +94,11 @@ export class BaseLevel {
         ctx.fillStyle = 'white';
         ctx.font = '20px VT323';
         this.commandHistory.forEach((cmd, index) => {
-            ctx.fillText(`admin@desktop:~$ ${cmd}`,
-                inputAreaX + 10, inputAreaY - (this.commandHistory.length * lineHeight) + (index * lineHeight) + 20);
+            ctx.fillText(`admin@desktop:~$ ${cmd}`, inputAreaX + 10, inputAreaY - (this.commandHistory.length * lineHeight) + (index * lineHeight) + 20);
         });
 
         const displayInput = this.input + (this.blink ? '_' : '');
-        ctx.fillStyle = this.currentCommandIndex < this.commands.length &&
-        this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length)
-            ? 'white'
-            : 'red';
+        ctx.fillStyle = this.currentCommandIndex < this.commands.length && this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
         this.hud.renderProgress(this.currentCommandIndex, this.commands.length);

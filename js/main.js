@@ -2,14 +2,15 @@ import {InputManager} from './core/inputManager.js';
 import {LevelManager} from './core/levelManager.js';
 import {HUD} from './ui/hud.js';
 import {Level1} from './levels/level1.js';
-import {AudioManager} from './core/audioManager.js';
 
-const game = [];
+const game = {};
+const sounds = {typing: "", ambience: ""};
+game.sounds = sounds;
+
 let ctx, canvas, levelManager, inputManager, hud, gameStarted = false;
 let bgImage, bgLoaded = false, bgScrollY = 0, bgScrollSpeed = 1;
-let audioManager;
 
-function init() {
+window.onload = function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -17,7 +18,6 @@ function init() {
 
     hud = new HUD(ctx, './assets/images/virus.png');
     inputManager = new InputManager();
-    audioManager = new AudioManager();
     levelManager = new LevelManager(ctx);
 
     bgImage = new Image();
@@ -26,20 +26,15 @@ function init() {
         bgLoaded = true;
     };
 
-    audioManager.loadSound('ambience', './assets/audio/ambience.mp3');
-    audioManager.setVolume('ambience', 0.1);
+    audioManager();
 
-    const level1 = new Level1(ctx);
+    const level1 = new Level1(ctx, game);
     levelManager.loadLevels([level1]);
 
     inputManager.initialize(loadHandler);
 
-    window.addEventListener('click', () => {
-        audioManager.playSound('ambience');
-    }, {once: true});
-
     gameLoop();
-}
+};
 
 function loadHandler(key) {
     if (!gameStarted && key === 'Enter') {
@@ -89,4 +84,10 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-window.onload = init;
+function audioManager() {
+    game.sounds.ambience = document.querySelector('#ambience');
+    game.sounds.typing = document.querySelector('#type');
+
+    game.sounds.ambience.volume = 0.2;
+    game.sounds.typing.volume = 0.2;
+}
