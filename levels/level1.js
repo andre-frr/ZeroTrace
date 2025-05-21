@@ -68,10 +68,12 @@ export class Level1 {
 
         // Play typing sound
         this.audioManager.playSound('type');
-    }
-
-    update() {
+    }    update() {
         // Logic for updating the level (e.g., animations, timers)
+        // Update the progress tracker animation
+        if (this.progressTracker && this.progressTracker.virusLoaded) {
+            this.progressTracker.update && this.progressTracker.update();
+        }
     }
 
     render() {
@@ -96,19 +98,24 @@ export class Level1 {
         if (this.currentCommandIndex < this.commands.length) {
             ctx.fillStyle = 'white';
             ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
-        }
-
-        // Draw the "player input" area
+        }        // Calculate progress tracker position first (at the bottom of the screen)
+        const progressTrackerHeight = 30;
+        const progressTrackerY = ctx.canvas.height - progressTrackerHeight - 20; // 20px margin from bottom
+        
+        // Draw the "player input" area (now positioned above the progress tracker)
         const inputAreaX = 50;
-        const inputAreaY = ctx.canvas.height - 100;
+        const inputAreaY = progressTrackerY - 80; // Position above the progress tracker
         const inputAreaWidth = ctx.canvas.width - 100;
         const inputAreaHeight = 50;
         const lineHeight = 25;
+        
+        // Calculate total input area height including command history
+        const totalInputHeight = inputAreaHeight + (this.commandHistory.length * lineHeight);
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, inputAreaHeight + (this.commandHistory.length * lineHeight));
+        ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
         ctx.strokeStyle = 'white';
-        ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, inputAreaHeight + (this.commandHistory.length * lineHeight));
+        ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
 
         // Display command history
         ctx.fillStyle = 'white';
@@ -122,7 +129,7 @@ export class Level1 {
         ctx.fillStyle = this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
-        // Draw progress tracker
-        this.progressTracker.render(this.currentCommandIndex, this.commands.length);
+        // Draw progress tracker at the bottom of the screen
+        this.progressTracker.render(this.currentCommandIndex, this.commands.length, this.commandHistory.length);
     }
 }
