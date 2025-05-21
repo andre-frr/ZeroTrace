@@ -34,6 +34,8 @@ window.onload = function init() {
     inputManager.initialize(loadHandler);
 
     gameLoop();
+
+    window.addEventListener('click', () => game.sounds.ambience.play(), {once: true});
 };
 
 function loadHandler(key) {
