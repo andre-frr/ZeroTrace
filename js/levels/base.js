@@ -1,0 +1,114 @@
+import {AudioManager} from '../core/audioManager.js';
+import {HUD} from "../ui/hud.js";
+
+export class BaseLevel {
+    constructor(ctx, name, commands, hudImagePath) {
+        this.ctx = ctx;
+        this.name = name;
+        this.commands = commands;
+        this.currentCommandIndex = 0;
+        this.input = '';
+        this.completed = false;
+        this.blink = true;
+        this.blinkInterval = setInterval(() => {
+            this.blink = !this.blink;
+        }, 500);
+
+        this.commandHistory = [];
+
+        this.audioManager = new AudioManager();
+        this.audioManager.loadSound('type', './assets/audio/typing.mp3');
+        this.audioManager.setVolume('type', 0.2);
+
+        this.hud = new HUD(ctx, hudImagePath);
+
+        this.adjustCanvasHeight();
+    }
+
+    adjustCanvasHeight() {
+        const commandHeight = 30;
+        const baseHeight = 200;
+        const requiredHeight = baseHeight + this.commands.length * commandHeight;
+
+        this.ctx.canvas.height = Math.max(this.ctx.canvas.height, requiredHeight);
+        this.commandsAreaHeight = this.commands.length * commandHeight + 50;
+    }
+
+    handleInput(key) {
+        if (key === 'Backspace') {
+            this.input = this.input.slice(0, -1);
+        } else if (key === 'Enter') {
+            if (this.input === this.commands[this.currentCommandIndex]) {
+                this.commandHistory.push(this.input);
+                this.currentCommandIndex++;
+                this.input = '';
+                if (this.currentCommandIndex >= this.commands.length) {
+                    this.completed = true;
+                    console.log(`${this.name} completed!`);
+                    clearInterval(this.blinkInterval);
+                }
+            }
+        } else {
+            this.input += key;
+        }
+
+        this.audioManager.playSound('type');
+    }
+
+    update() {
+        this.hud.update();
+    }
+
+    render() {
+        const {ctx} = this;
+
+        const commandsAreaY = 50;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
+        ctx.strokeStyle = 'white';
+        ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
+
+        ctx.fillStyle = 'green';
+        ctx.font = '20px VT323';
+        ctx.textAlign = 'left';
+        for (let i = 0; i < this.currentCommandIndex; i++) {
+            ctx.fillText(this.commands[i],
+                ctx.canvas.width - 290, commandsAreaY + 30 + i * 30);
+        }
+
+        if (this.currentCommandIndex < this.commands.length) {
+            ctx.fillStyle = 'white';
+            ctx.fillText(this.commands[this.currentCommandIndex],
+                ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
+        }
+
+        const inputAreaX = 50;
+        const inputAreaY = ctx.canvas.height - 130;
+        const inputAreaWidth = ctx.canvas.width - 100;
+        const inputAreaHeight = 50;
+        const lineHeight = 25;
+
+        const totalInputHeight = inputAreaHeight + (this.commandHistory.length * lineHeight);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
+        ctx.strokeStyle = 'white';
+        ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
+
+        ctx.fillStyle = 'white';
+        ctx.font = '20px VT323';
+        this.commandHistory.forEach((cmd, index) => {
+            ctx.fillText(`admin@desktop:~$ ${cmd}`,
+                inputAreaX + 10, inputAreaY - (this.commandHistory.length * lineHeight) + (index * lineHeight) + 20);
+        });
+
+        const displayInput = this.input + (this.blink ? '_' : '');
+        ctx.fillStyle = this.currentCommandIndex < this.commands.length &&
+        this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length)
+            ? 'white'
+            : 'red';
+        ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
+
+        this.hud.renderProgress(this.currentCommandIndex, this.commands.length);
+    }
+}
