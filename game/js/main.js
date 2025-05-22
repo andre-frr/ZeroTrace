@@ -4,7 +4,7 @@ import {HUD} from './ui/hud.js';
 import {Level1} from './levels/level1.js';
 
 const game = {};
-const sounds = {typing: "", ambience: ""};
+const sounds = {typing: "", ambience: "", error: ""};
 game.sounds = sounds;
 
 let ctx, canvas, levelManager, inputManager, hud, gameStarted = false;
@@ -89,7 +89,9 @@ function gameLoop() {
 function audioManager() {
     game.sounds.ambience = document.querySelector('#ambience');
     game.sounds.typing = document.querySelector('#type');
+    game.sounds.error = document.querySelector('#error');
 
     game.sounds.ambience.volume = 0.2;
     game.sounds.typing.volume = 0.2;
+    game.sounds.error.volume = 0.1;
 }

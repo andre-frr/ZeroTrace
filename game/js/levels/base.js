@@ -41,6 +41,24 @@ export class BaseLevel {
                     this.completed = true;
                     console.log(`${this.name} completed!`);
                     clearInterval(this.blinkInterval);
+                }            }else {
+                // Comando errado ou incompleto - perde uma vida
+                const hasLivesLeft = this.hud.loseLife();
+                
+                // Feedback visual para o erro (sem o texto [ERRO])
+                this.commandHistory.push(`${this.input}`);
+                this.input = '';
+                
+                // Reproduz som de erro se existir
+                if (this.game.sounds.error) {
+                    this.game.sounds.error.currentTime = 0;
+                    this.game.sounds.error.play();
+                }
+                
+                // Game over se não tiver mais vidas
+                if (!hasLivesLeft) {
+                    console.log("Game Over - Sem vidas restantes!");
+                    // Implemente o comportamento de game over aqui
                 }
             }
         } else {
@@ -65,6 +83,9 @@ export class BaseLevel {
         ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
         ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
+       
+        // Renderiza os corações de vida
+        this.hud.renderLives();
 
         ctx.fillStyle = 'green';
         ctx.font = '20px VT323';
