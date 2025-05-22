@@ -31,11 +31,18 @@ window.onload = function init() {
     const level1 = new Level1(ctx, game);
     levelManager.loadLevels([level1]);
 
-    inputManager.initialize(loadHandler);
+    inputManager.initialize(loadHandler);    gameLoop();
 
-    gameLoop();
-
-    window.addEventListener('click', () => game.sounds.ambience.play(), {once: true});
+    // Adiciona evento para iniciar o áudio com clique do mouse ou qualquer tecla
+    const startAudio = () => {
+        game.sounds.ambience.play();
+        // Remove todos os event listeners depois que o áudio começar
+        window.removeEventListener('click', startAudio);
+        window.removeEventListener('keydown', startAudio);
+    };
+    
+    window.addEventListener('click', startAudio, {once: true});
+    window.addEventListener('keydown', startAudio, {once: true});
 };
 
 function loadHandler(key) {
@@ -93,5 +100,5 @@ function audioManager() {
 
     game.sounds.ambience.volume = 0.2;
     game.sounds.typing.volume = 0.2;
-    game.sounds.error.volume = 0.1;
+    game.sounds.error.volume = 0.08;
 }
