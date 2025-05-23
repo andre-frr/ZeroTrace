@@ -41,7 +41,7 @@ export class BaseLevel {
                     this.completed = true;
                     console.log(`${this.name} completed!`);
                     clearInterval(this.blinkInterval);
-                }            }else {
+                }                }else {
                 // Comando errado ou incompleto - perde uma vida
                 const hasLivesLeft = this.hud.loseLife();
                 
@@ -53,12 +53,29 @@ export class BaseLevel {
                 if (this.game.sounds.error) {
                     this.game.sounds.error.currentTime = 0;
                     this.game.sounds.error.play();
-                }
-                
-                // Game over se não tiver mais vidas
+                }                  // Game over se não tiver mais vidas
                 if (!hasLivesLeft) {
-                    console.log("Game Over - Sem vidas restantes!");
-                    // Implemente o comportamento de game over aqui
+                    // O estado de game over já foi definido no método loseLife
+                    
+                    // Executa um efeito de "flash" vermelho na tela
+                    const flashOverlay = document.createElement('div');
+                    flashOverlay.style.position = 'fixed';
+                    flashOverlay.style.top = '0';
+                    flashOverlay.style.left = '0';
+                    flashOverlay.style.width = '100%';
+                    flashOverlay.style.height = '100%';
+                    flashOverlay.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+                    flashOverlay.style.zIndex = '1000';
+                    flashOverlay.style.pointerEvents = 'none';
+                    flashOverlay.style.animation = 'flash 0.5s';
+                    document.body.appendChild(flashOverlay);
+                    
+                    // Remove o flash após a animação
+                    setTimeout(() => {
+                        document.body.removeChild(flashOverlay);
+                    }, 500);
+                    
+                    clearInterval(this.blinkInterval); // Para a animação de piscar
                 }
             }
         } else {
@@ -73,15 +90,18 @@ export class BaseLevel {
 
     update() {
         this.hud.update();
-    }
-
-    render() {
+    }    render() {
         const {ctx} = this;
+        
+        // Save the current context state at the beginning
+        ctx.save();
 
+        // Command area rendering
         const commandsAreaY = 50;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1; // Explicitly set lineWidth to 1
         ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
        
         // Renderiza os corações de vida
@@ -99,6 +119,7 @@ export class BaseLevel {
             ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
+        // Input area rendering with consistent settings
         const inputAreaX = 50;
         const inputAreaY = ctx.canvas.height - 130;
         const inputAreaWidth = ctx.canvas.width - 100;
@@ -110,6 +131,7 @@ export class BaseLevel {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
         ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1; // Ensure lineWidth is 1 here too
         ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
 
         ctx.fillStyle = 'white';
@@ -122,6 +144,10 @@ export class BaseLevel {
         ctx.fillStyle = this.currentCommandIndex < this.commands.length && this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
+        // Render progress bar
         this.hud.renderProgress(this.currentCommandIndex, this.commands.length);
+        
+        // Restore the context state to what it was before
+        ctx.restore();
     }
 }

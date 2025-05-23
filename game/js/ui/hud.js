@@ -11,9 +11,7 @@ export class HUD {
         };
         this.virusScale = 1.0;
         this.virusScaleDirection = 0.01;
-        this.lastUpdateTime = Date.now();
-
-        // Lives system
+        this.lastUpdateTime = Date.now();        // Lives system
         this.lives = 5;
         this.maxLives = 5;
         this.heartImage = new Image();
@@ -23,6 +21,11 @@ export class HUD {
             this.heartsLoaded = true;
             console.log("Heart image loaded successfully");
         };
+        
+        // Propriedades para animação de palpitação dos corações
+        this.heartScale = 1.0;
+        this.heartScaleDirection = 0.01; // Velocidade baixa para pulsação suave
+        this.heartPulseActive = false; // Ativa quando tiver 2 ou menos vidas
         
         // Defina um objeto padrão para os sprites do coração caso o carregamento falhe
         this.heartSprites = {
@@ -97,25 +100,39 @@ Grupo █████`;
 
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 0;
-    }
-
-    update() {
+    }    update() {
         const now = Date.now();
         if (now - this.lastUpdateTime > 16) { // ~60fps
+            // Animação do vírus na barra de progresso
             this.virusScale += this.virusScaleDirection;
             if (this.virusScale > 1.1 || this.virusScale < 0.9) {
                 this.virusScaleDirection *= -1;
             }
+            
+            // Animação de palpitação dos corações quando restam 2 ou menos vidas
+            this.heartPulseActive = (this.lives <= 2 && this.lives > 0);
+            if (this.heartPulseActive) {
+                this.heartScale += this.heartScaleDirection;
+                if (this.heartScale > 1.15 || this.heartScale < 0.85) {
+                    this.heartScaleDirection *= -1;
+                }
+            } else {
+                // Resetar para o tamanho normal se não estiver pulsando
+                this.heartScale = 1.0;
+            }
+            
             this.lastUpdateTime = now;
         }
-    }
-
-    renderProgress(currentCommandIndex, totalCommands) {
+    }    renderProgress(currentCommandIndex, totalCommands) {
         if (!this.virusLoaded) {
             return;
         }
 
         const {ctx} = this;
+        
+        // Save the current context state
+        ctx.save();
+        
         const progressBarWidth = ctx.canvas.width - 400;
         const progressBarHeight = 25;
         const progressBarX = 200;
@@ -126,7 +143,6 @@ Grupo █████`;
         ctx.strokeStyle = '#00ff00';
         ctx.lineWidth = 2;
         ctx.strokeRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight);
-        ctx.lineWidth = 1;
 
         const percentage = Math.floor((currentCommandIndex / totalCommands) * 100);
         ctx.fillStyle = '#00ff00';
@@ -146,6 +162,7 @@ Grupo █████`;
         const virusX = progressBarX + progress - virusSize / 2;
         const virusY = progressBarY + progressBarHeight / 2 - virusSize / 2;
 
+        // Use additional save/restore for the shadow effects
         ctx.save();
         ctx.shadowColor = '#00ff00';
         ctx.shadowBlur = 10;
@@ -153,13 +170,20 @@ Grupo █████`;
         ctx.shadowOffsetY = 0;
         ctx.drawImage(this.virusImage, virusX, virusY, virusSize, virusSize);
         ctx.restore();
-    }   
-      renderLives() {
+        
+        // Restore the original context state
+        ctx.restore();
+    }
+    renderLives() {
         if (!this.heartsLoaded || !this.heartSprites) {
             return;
         }
 
         const {ctx} = this;
+        
+        // Save the current context state
+        ctx.save();
+        
         const containerWidth = 195; // Tamanho fixo do retângulo
         const containerHeight = 45; // Tamanho fixo do retângulo
         const containerX = 50;
@@ -191,19 +215,28 @@ Grupo █████`;
         for (let i = 0; i < this.maxLives; i++) {
             // Define o estado baseado na vida restante
             const state = i < this.lives ? "VIDA" : "SEM_VIDA";
-            
-            // Garante que os dados do sprite estão disponíveis
+              // Garante que os dados do sprite estão disponíveis
             if (this.heartSprites?.frames?.[state]) {
                 const spriteData = this.heartSprites.frames[state];
+                
+                // Aplica o efeito de pulsação apenas nos corações ativos quando tiver 2 ou menos vidas
+                let finalHeartWidth = heartWidth;
+                let finalHeartHeight = heartHeight;
+                
+                // Aplica o efeito de pulsação apenas nos corações que representam vidas
+                if (this.heartPulseActive && i < this.lives) {
+                    finalHeartWidth = heartWidth * this.heartScale;
+                    finalHeartHeight = heartHeight * this.heartScale;
+                }
                 
                 // Posicionamento horizontal com espaçamento uniforme
                 const heartX = startX + (i * (heartWidth + spacing));
                 
                 // Posicionamento vertical - Compensa a diferença de altura para centralização
-                // Como o coração é mais alto que o container, ajustamos para centralizar visualmente
-                const heartY = containerY + Math.round((containerHeight - heartHeight) / 2);
+                // Ajusta a posição para manter os corações centralizados mesmo quando aumentam
+                const heartY = containerY + Math.round((containerHeight - finalHeartHeight) / 2);
                 
-                                // Desenha o coração de forma perfeitamente centralizada
+                // Desenha o coração de forma perfeitamente centralizada
                 ctx.drawImage(
                     this.heartImage, 
                     spriteData.frame.x, 
@@ -212,11 +245,14 @@ Grupo █████`;
                     spriteData.frame.h, 
                     heartX, 
                     heartY, 
-                    heartWidth, 
-                    heartHeight
+                    finalHeartWidth, 
+                    finalHeartHeight
                 );
             }
         }
+        
+        // Restore the context state
+        ctx.restore();
         
         // Debug visual - uncomment if needed to test alignment
         // ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
@@ -226,14 +262,22 @@ Grupo █████`;
         //     totalHeartsWidth,
         //     heartHeight
         // );
-    }
-
-    loseLife() {
-        if (this.lives > 0) {
+    }    loseLife() {
+        if (this.lives > 1) {
+            // Se tiver mais de 1 vida, apenas perde uma vida
             this.lives--;
-            return true; // Returns true if player still has lives
+            return true; // Retorna true porque ainda tem vidas restantes
+        } else if (this.lives === 1) {
+            // Se tiver exatamente 1 vida, essa é a última
+            this.lives = 0; // Zera a vida
+            
+            // Define o estado de game over imediatamente
+            console.log("Game Over - Última vida perdida!");
+            window.gameOver = true;
+            
+            return false; // Retorna false indicando que não tem mais vidas
         }
-        return false; // Returns false if player is out of lives
+        return false; // Já está sem vidas
     }
 
     resetLives() {
@@ -242,5 +286,89 @@ Grupo █████`;
 
     getLives() {
         return this.lives;
+    }      
+    
+    drawGameOverMessage() {
+        const {ctx} = this;
+        
+        // Save the current context state to restore it later
+        ctx.save();
+        
+        // Semi-transparente para ver o jogo por baixo
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
+        // Desenha a caixa de alerta no centro
+        const boxWidth = 600;
+        const boxHeight = 350;
+        const boxX = (ctx.canvas.width - boxWidth) / 2;
+        const boxY = (ctx.canvas.height - boxHeight) / 2;
+        
+        // Contorno vermelho pulsante
+        ctx.lineWidth = 4;
+        const now = Date.now();
+        const pulseIntensity = Math.sin(now / 200) * 0.3 + 0.7; // Pulsação suave
+        const redGlow = Math.floor(255 * pulseIntensity);
+        ctx.strokeStyle = `rgb(${redGlow}, 0, 0)`;
+        
+        // Desenha o fundo da caixa com gradiente
+        const gradient = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
+        gradient.addColorStop(0, 'rgba(80, 0, 0, 0.9)');
+        gradient.addColorStop(1, 'rgba(40, 0, 0, 0.9)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        
+        // Título do alerta
+        ctx.fillStyle = 'red';
+        ctx.font = '42px VT323';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 10;
+        ctx.fillText('[ALERTA DE SEGURANÇA]', ctx.canvas.width / 2, boxY + 60);
+        
+        // Mensagens
+        ctx.font = '32px VT323';
+        ctx.fillText('Firewall ativada! Foste detetado!', ctx.canvas.width / 2, boxY + 160);
+        ctx.fillText('Ligação terminada forçadamente.', ctx.canvas.width / 2, boxY + 200);
+        
+        // Instruções
+        ctx.fillStyle = 'white';
+        ctx.font = '26px VT323';
+        ctx.fillText('Prima ENTER para tentar novamente', ctx.canvas.width / 2, boxY + boxHeight -50);
+        
+        // Adiciona ícones de alerta
+        this.drawAlertIcon(ctx, boxX + 80, boxY + 60);
+        this.drawAlertIcon(ctx, boxX + boxWidth - 80, boxY + 60);
+        
+        // Reset shadow effects
+        ctx.shadowColor = '#000000';
+        ctx.shadowBlur = 0;
+        
+        // Restore the context state to what it was before
+        ctx.restore();
+    }
+    
+    drawAlertIcon(ctx, x, y) {
+        const size = 30;
+        ctx.save();
+        ctx.translate(x, y);
+        
+        // Triângulo de aviso
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, size);
+        ctx.lineTo(-size, size);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Ponto de exclamação
+        ctx.fillStyle = 'white';
+        ctx.font = '30px VT323';
+        ctx.textAlign = 'center';
+        ctx.fillText('!', 0, 10);
+        
+        ctx.restore();
     }
 }
