@@ -19,7 +19,6 @@ export class HUD {
         this.heartsLoaded = false;
         this.heartImage.onload = () => {
             this.heartsLoaded = true;
-            console.log("Heart image loaded successfully");
         };
         
         // Propriedades para animação de palpitação dos corações
@@ -49,7 +48,6 @@ export class HUD {
             })
             .then(data => {
                 this.heartSprites = data;
-                console.log("Heart sprites loaded:", data.frames);
             })
             .catch(error => {
                 console.error('Error loading heart sprites:', error);
@@ -58,6 +56,10 @@ export class HUD {
 
     drawIntroMessage() {
         const {ctx} = this;
+        if (!HUD.introLogged) {
+            console.log("[HUD] Mensagem inicial apresentada ao jogador.");
+            HUD.introLogged = true;
+        }
 
         const message = `[Conexão estabelecida…]
 
@@ -271,8 +273,6 @@ Grupo █████`;
             // Se tiver exatamente 1 vida, essa é a última
             this.lives = 0; // Zera a vida
             
-            // Define o estado de game over imediatamente
-            console.log("Game Over - Última vida perdida!");
             window.gameOver = true;
             
             return false; // Retorna false indicando que não tem mais vidas

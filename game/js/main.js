@@ -33,23 +33,14 @@ window.onload = function init() {
     const level1 = new Level1(ctx, game);
     levelManager.loadLevels([level1]);
 
-    inputManager.initialize(loadHandler);    gameLoop();
-
-    // Adiciona evento para iniciar o áudio com clique do mouse ou qualquer tecla
-    const startAudio = () => {
-        game.sounds.ambience.play();
-        // Remove todos os event listeners depois que o áudio começar
-        window.removeEventListener('click', startAudio);
-        window.removeEventListener('keydown', startAudio);
-    };
-    
-    window.addEventListener('click', startAudio, {once: true});
-    window.addEventListener('keydown', startAudio, {once: true});
+    inputManager.initialize(loadHandler);
+    gameLoop();
 };
 
 function loadHandler(key) {
     if (!gameStarted && key === 'Enter') {
         gameStarted = true;
+        game.sounds.ambience.play(); // Inicia o som de fundo apenas ao começar o jogo
         levelManager.startLevel(0);
     } else if (window.gameOver && key === 'Enter') {
         // Reinicia o jogo ao pressionar Enter quando estiver em game over
@@ -73,11 +64,6 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
 
-    // Para depuração
-    if (window.gameOver) {
-        console.log("Renderizando alerta de Game Over");
-    }
-
     if (!gameStarted) {
         hud.drawIntroMessage();
     } else {
@@ -86,7 +72,13 @@ function render() {
         
         // Se estiver em game over, adiciona o alerta por cima
         if (window.gameOver) {
+            if (!render.loggedGameOver) {
+                console.log("Game Over");
+                render.loggedGameOver = true;
+            }
             hud.drawGameOverMessage();
+        } else {
+            render.loggedGameOver = false;
         }
     }
 }
