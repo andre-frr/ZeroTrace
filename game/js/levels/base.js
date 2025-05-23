@@ -97,7 +97,7 @@ export class BaseLevel {
         ctx.save();
 
         // Command area rendering
-        const commandsAreaY = 50;
+        const commandsAreaY = 65;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
@@ -121,7 +121,7 @@ export class BaseLevel {
 
         // Input area rendering with consistent settings
         const inputAreaX = 50;
-        const inputAreaY = ctx.canvas.height - 130;
+        const inputAreaY = ctx.canvas.height - 115;
         const inputAreaWidth = ctx.canvas.width - 100;
         const inputAreaHeight = 50;
         const lineHeight = 25;

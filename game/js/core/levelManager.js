@@ -19,6 +19,10 @@ export class LevelManager {
         }
         this.currentLevel = levelIndex;
         console.log(`A iniciar o ${this.levels[levelIndex].name}`);
+        // Inicia o timer do HUD ao começar o nível
+        if (this.levels[levelIndex].hud && typeof this.levels[levelIndex].hud.startTimer === 'function') {
+            this.levels[levelIndex].hud.startTimer();
+        }
     }
 
     // Atualiza a lógica do nível atual

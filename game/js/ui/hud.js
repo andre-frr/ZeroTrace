@@ -52,6 +52,29 @@ export class HUD {
             .catch(error => {
                 console.error('Error loading heart sprites:', error);
             });
+    
+        // Timer properties
+        this.timerHandler = null;
+        this.globalTime = 0;
+        this.localTime = 0;
+        this.maxTime = 45;
+
+        // Cria o elemento visual do timer no fundo do jogo (corrigido)
+        if (!document.getElementById("hud-timer")) {
+            const timerElem = document.createElement("progress");
+            timerElem.id = "hud-timer";
+            timerElem.max = this.maxTime;
+            timerElem.value = 0;
+            timerElem.style.position = "fixed";
+            timerElem.style.left = "0";
+            timerElem.style.bottom = "0"; // Corrigido para bottom
+            timerElem.style.width = "100vw";
+            timerElem.style.height = "17px";
+            timerElem.style.zIndex = 1000;
+            timerElem.style.backgroundColor = "#eee";
+            timerElem.style.display = "none";
+            document.body.appendChild(timerElem);
+        }
     }
 
     drawIntroMessage() {
@@ -129,16 +152,13 @@ Grupo █████`;
         if (!this.virusLoaded) {
             return;
         }
-
         const {ctx} = this;
-        
-        // Save the current context state
         ctx.save();
-        
+        // Barra de progresso mais para cima (ajuste Y de 40 para 10)
         const progressBarWidth = ctx.canvas.width - 400;
         const progressBarHeight = 25;
         const progressBarX = 200;
-        const progressBarY = ctx.canvas.height - progressBarHeight - 20;
+        const progressBarY = 18; // Agora 10px do topo
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight);
@@ -164,7 +184,6 @@ Grupo █████`;
         const virusX = progressBarX + progress - virusSize / 2;
         const virusY = progressBarY + progressBarHeight / 2 - virusSize / 2;
 
-        // Use additional save/restore for the shadow effects
         ctx.save();
         ctx.shadowColor = '#00ff00';
         ctx.shadowBlur = 10;
@@ -172,24 +191,20 @@ Grupo █████`;
         ctx.shadowOffsetY = 0;
         ctx.drawImage(this.virusImage, virusX, virusY, virusSize, virusSize);
         ctx.restore();
-        
-        // Restore the original context state
         ctx.restore();
     }
+
     renderLives() {
         if (!this.heartsLoaded || !this.heartSprites) {
             return;
         }
-
         const {ctx} = this;
-        
-        // Save the current context state
         ctx.save();
-        
-        const containerWidth = 195; // Tamanho fixo do retângulo
-        const containerHeight = 45; // Tamanho fixo do retângulo
+        // Desce as vidas para não sobrepor a barra de progresso
+        const containerWidth = 195;
+        const containerHeight = 45;
         const containerX = 50;
-        const containerY = 50;
+        const containerY = 65; 
         
         // Tamanho exato dos corações para renderização
         const heartWidth = 35; // Largura do coração
@@ -256,15 +271,9 @@ Grupo █████`;
         // Restore the context state
         ctx.restore();
         
-        // Debug visual - uncomment if needed to test alignment
-        // ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-        // ctx.fillRect(
-        //     containerX + Math.round((containerWidth - totalHeartsWidth) / 2),
-        //     containerY + Math.round((containerHeight - heartHeight) / 2),
-        //     totalHeartsWidth,
-        //     heartHeight
-        // );
-    }    loseLife() {
+    }   
+
+     loseLife() {
         if (this.lives > 1) {
             // Se tiver mais de 1 vida, apenas perde uma vida
             this.lives--;
@@ -370,5 +379,50 @@ Grupo █████`;
         ctx.fillText('!', 0, 10);
         
         ctx.restore();
+    }
+
+    startTimer() {
+        this.stopTimer();
+        this.localTime = 0;
+        const timerElem = document.getElementById("hud-timer");
+        timerElem.classList.remove("almost");
+        timerElem.value = 0;
+        timerElem.style.display = "block";
+        this.timerHandler = setInterval(() => {
+            // Só atualiza se não for game over
+            if (window.gameOver) {
+                this.stopTimer();
+                return;
+            }
+            this.globalTime++;
+            this.localTime++;
+            timerElem.value = this.localTime;
+            if (this.localTime >= this.maxTime - 5) {
+                timerElem.classList.add("almost");
+            } else {
+                timerElem.classList.remove("almost");
+            }
+            if (this.localTime >= this.maxTime) {
+                timerElem.classList.remove("almost");
+                this.stopTimer();
+                timerElem.style.display = "none";
+                // Aqui pode disparar lógica de fim de tempo se necessário
+                window.gameOver = true; // Dispara o game over ao acabar o tempo
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerHandler) {
+            clearInterval(this.timerHandler);
+            this.timerHandler = null;
+        }
+        // Esconde o timer ao parar
+        const timerElem = document.getElementById("hud-timer");
+        if (timerElem) {
+            timerElem.style.display = "none";
+            timerElem.classList.remove("almost");
+            timerElem.classList.remove("timer-blink");
+        }
     }
 }
