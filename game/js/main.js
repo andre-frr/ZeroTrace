@@ -35,12 +35,13 @@ window.onload = function init() {
 
     inputManager.initialize(loadHandler);
     gameLoop();
+
+    window.addEventListener('click', () => game.sounds.ambience.play(), {once: true});
 };
 
 function loadHandler(key) {
     if (!gameStarted && key === 'Enter') {
         gameStarted = true;
-        game.sounds.ambience.play(); // Inicia o som de fundo apenas ao começar o jogo
         levelManager.startLevel(0);
     } else if (window.gameOver && key === 'Enter') {
         // Reinicia o jogo ao pressionar Enter quando estiver em game over
@@ -69,7 +70,7 @@ function render() {
     } else {
         // Sempre renderiza o jogo, independente do estado
         levelManager.render();
-        
+
         // Se estiver em game over, adiciona o alerta por cima
         if (window.gameOver) {
             if (!render.loggedGameOver) {
@@ -115,7 +116,7 @@ function audioManager() {
 function resetGame() {
     window.gameOver = false;
     gameStarted = true;
-    
+
     // Reiniciar os níveis
     levelManager.currentLevel = 0;
     levelManager.levels.forEach(level => {
@@ -126,19 +127,19 @@ function resetGame() {
         level.input = '';
         level.commandHistory = [];
         level.completed = false;
-          // Reiniciar o blink sempre que reiniciar o jogo
+        // Reiniciar o blink sempre que reiniciar o jogo
         // Limpa o intervalo anterior se existir
         if (level.blinkInterval) {
             clearInterval(level.blinkInterval);
         }
-        
+
         // Cria um novo intervalo
         level.blink = true;
         level.blinkInterval = setInterval(() => {
             level.blink = !level.blink;
         }, 500);
     });
-    
+
     // Inicia o primeiro nível novamente
     levelManager.startLevel(0);
 }

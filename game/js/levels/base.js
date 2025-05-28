@@ -3,7 +3,7 @@ import {HUD} from "../ui/hud.js";
 export class BaseLevel {
     constructor(ctx, game, name, commands, hudImagePath) {
         this.ctx = ctx;
-        this.game = game; // Store the game object
+        this.game = game; // Armazena o objeto do jogo
         this.name = name;
         this.commands = commands;
         this.currentCommandIndex = 0;
@@ -41,69 +41,67 @@ export class BaseLevel {
                     this.completed = true;
                     console.log(`${this.name} completed!`);
                     clearInterval(this.blinkInterval);
-                }                }else {
+                }
+            } else {
                 // Comando errado ou incompleto - perde uma vida
                 const hasLivesLeft = this.hud.loseLife();
-                
-                // Feedback visual para o erro (sem o texto [ERRO])
-                this.commandHistory.push(`${this.input}`);
+
+                // Feedback visual para o erro
+                this.commandHistory.push(this.input);
                 this.input = '';
-                
+
                 // Reproduz som de erro se existir
                 if (this.game.sounds.error) {
                     this.game.sounds.error.currentTime = 0;
                     this.game.sounds.error.play();
-                }                  // Game over se não tiver mais vidas
+                }
+
+                // Game over se não tiver mais vidas
                 if (!hasLivesLeft) {
-                    // O estado de game over já foi definido no método loseLife
-                    
-                    // Executa um efeito de "flash" vermelho na tela
                     const flashOverlay = document.createElement('div');
-                    flashOverlay.style.position = 'fixed';
-                    flashOverlay.style.top = '0';
-                    flashOverlay.style.left = '0';
-                    flashOverlay.style.width = '100%';
-                    flashOverlay.style.height = '100%';
-                    flashOverlay.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-                    flashOverlay.style.zIndex = '1000';
-                    flashOverlay.style.pointerEvents = 'none';
-                    flashOverlay.style.animation = 'flash 0.5s';
+                    flashOverlay.style = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(255, 0, 0, 0.3);
+                        z-index: 1000;
+                        pointer-events: none;
+                        animation: flash 0.5s;
+                    `;
                     document.body.appendChild(flashOverlay);
-                    
-                    // Remove o flash após a animação
+
                     setTimeout(() => {
                         document.body.removeChild(flashOverlay);
                     }, 500);
-                    
-                    clearInterval(this.blinkInterval); // Para a animação de piscar
+
+                    clearInterval(this.blinkInterval);
                 }
             }
         } else {
             this.input += key;
         }
 
-
-        this.game.sounds.typing.currentTime = 0; // Reset playback position
+        this.game.sounds.typing.currentTime = 0; // Reinicia a posição de reprodução
         this.game.sounds.typing.play();
-
     }
 
     update() {
         this.hud.update();
-    }    render() {
-        const {ctx} = this;
-        
-        // Save the current context state at the beginning
-        ctx.save();
+    }
 
-        // Command area rendering
+    render() {
+        const {ctx} = this;
+
+        // Área de comandos
         const commandsAreaY = 65;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
-        ctx.lineWidth = 1; // Explicitly set lineWidth to 1
+        ctx.lineWidth = 1;
         ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
-       
+
         // Renderiza os corações de vida
         this.hud.renderLives();
 
@@ -119,7 +117,7 @@ export class BaseLevel {
             ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
-        // Input area rendering with consistent settings
+        // Área de input
         const inputAreaX = 50;
         const inputAreaY = ctx.canvas.height - 115;
         const inputAreaWidth = ctx.canvas.width - 100;
@@ -131,7 +129,7 @@ export class BaseLevel {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
         ctx.strokeStyle = 'white';
-        ctx.lineWidth = 1; // Ensure lineWidth is 1 here too
+        ctx.lineWidth = 1;
         ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
 
         ctx.fillStyle = 'white';
@@ -144,10 +142,7 @@ export class BaseLevel {
         ctx.fillStyle = this.currentCommandIndex < this.commands.length && this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
-        // Render progress bar
+        // Renderiza a barra de progresso
         this.hud.renderProgress(this.currentCommandIndex, this.commands.length);
-        
-        // Restore the context state to what it was before
-        ctx.restore();
     }
 }

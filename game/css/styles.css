@@ -13,11 +13,21 @@ html, body, canvas {
 }
 
 @keyframes flash {
-    0% { opacity: 1; }
-    25% { opacity: 0.8; }
-    50% { opacity: 0.6; }
-    75% { opacity: 0.4; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 1;
+    }
+    25% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    75% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 /* Timer warning (últimos 5 segundos) */
@@ -31,15 +41,19 @@ html, body, canvas {
     background-color: #eee;
     display: none;
 }
+
 #hud-timer.almost {
     transition: background-color 0.2s;
 }
+
 #hud-timer.almost::-webkit-progress-bar {
     background-color: #222 !important;
 }
+
 #hud-timer.almost::-webkit-progress-value {
     background-color: #ff2222 !important;
 }
+
 #hud-timer.almost::-moz-progress-bar {
     background-color: #ff2222 !important;
 }

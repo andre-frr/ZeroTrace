@@ -19,23 +19,18 @@ export class LevelManager {
         }
         this.currentLevel = levelIndex;
         console.log(`A iniciar o ${this.levels[levelIndex].name}`);
-        // Inicia o timer do HUD ao começar o nível
-        if (this.levels[levelIndex].hud && typeof this.levels[levelIndex].hud.startTimer === 'function') {
+        if (this.levels[levelIndex].hud?.startTimer) {
             this.levels[levelIndex].hud.startTimer();
         }
     }
 
     // Atualiza a lógica do nível atual
     update() {
-        if (this.levels[this.currentLevel]) {
-            this.levels[this.currentLevel].update();
-        }
+        this.levels[this.currentLevel]?.update();
     }
 
     // Renderiza o nível atual
     render() {
-        if (this.levels[this.currentLevel]) {
-            this.levels[this.currentLevel].render(this.ctx);
-        }
+        this.levels[this.currentLevel]?.render(this.ctx);
     }
 }
