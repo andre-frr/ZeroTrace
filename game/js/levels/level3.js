@@ -12,7 +12,7 @@ const Level3 = BaseLevel.extend(function () {
             'nc -lvnp 4444'
         ];
         this.super(ctx, game, name, commands);
-        this.timeLimit = 35;
+        this.timeLimit = 75;
     };
 });
 

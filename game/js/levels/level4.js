@@ -12,7 +12,7 @@ const Level4 = BaseLevel.extend(function () {
             'echo "root:toor" | chpasswd'
         ];
         this.super(ctx, game, name, commands);
-        this.timeLimit = 25;
+        this.timeLimit = 60;
     };
 });
 

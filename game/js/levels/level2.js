@@ -12,7 +12,7 @@ const Level2 = BaseLevel.extend(function () {
             'exfiltrate -protocol https'
         ];
         this.super(ctx, game, name, commands);
-        this.timeLimit = 45;
+        this.timeLimit = 80;
     };
 });
 

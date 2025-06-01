@@ -155,8 +155,4 @@ export class Gisee {
             this.ctx.drawImage(frame, this.x, this.y);
         }
     }
-
-    resetPosition() {
-        this.positionInitialized = false;
-    }
 }

@@ -12,7 +12,7 @@ const Level1 = BaseLevel.extend(function () {
             'disconnect -trace'
         ];
         this.super(ctx, game, name, commands);
-        this.timeLimit = 60;
+        this.timeLimit = 90;
     };
 });
 

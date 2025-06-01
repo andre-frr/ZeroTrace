@@ -18,6 +18,9 @@ export class LevelManager {
         const level = this.levels[levelIndex];
         const timeLimit = level.timeLimit || 45;
 
+        if (level.hud?.stopTimer) {
+            level.hud.stopTimer();
+        }
         if (level.hud?.resetAllTimers) {
             level.hud.resetAllTimers();
         }

@@ -84,8 +84,4 @@ export class Hearts {
         }
         return false;
     }
-
-    resetLives() {
-        this.lives = this.maxLives;
-    }
 }

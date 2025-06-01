@@ -54,6 +54,7 @@ const BaseLevel = Class.extend(function () {
                     this.completed = true;
                     clearInterval(this.blinkInterval);
                     this.showWinScreen = true;
+                    this.hud.stopTimer();
                 }
             } else {
                 const hasLivesLeft = this.hud.loseLife();
@@ -68,16 +69,16 @@ const BaseLevel = Class.extend(function () {
                 if (!hasLivesLeft) {
                     const flashOverlay = document.createElement('div');
                     flashOverlay.style = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: rgba(255, 0, 0, 0.3);
-                        z-index: 1000;
-                        pointer-events: none;
-                        animation: flash 0.5s;
-                    `;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(255, 0, 0, 0.3);
+                    z-index: 1000;
+                    pointer-events: none;
+                    animation: flash 0.5s;
+                `;
                     document.body.appendChild(flashOverlay);
 
                     setTimeout(() => {

@@ -272,11 +272,6 @@ Grupo █████`;
         return this.hearts.loseLife();
     }
 
-    resetLives() {
-        this.hearts.resetLives();
-        this.gisee.resetPosition();
-    }
-
     startTimer(timeLimitInSeconds) {
         this.stopTimer();
         this.resetAllTimers();
@@ -286,6 +281,7 @@ Grupo █████`;
         const timerElem = this.timerElem;
         timerElem.max = this.maxTime;
         timerElem.value = 0;
+        this.localTime = 0;
         timerElem.style.display = "block";
         timerElem.classList.remove("almost");
         this.timerHandler = setInterval(() => {
