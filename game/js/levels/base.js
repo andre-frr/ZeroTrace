@@ -102,10 +102,7 @@ const BaseLevel = Class.extend(function () {
 
     this.render = function () {
         if (this.showWinScreen) {
-            this.hud.drawWinScreen(
-                this.name,
-                this.game.levelManager.currentLevel === this.game.levelManager.levels.length - 1
-            );
+            this.hud.drawWinScreen(this.name, this.game.levelManager.currentLevel === this.game.levelManager.levels.length - 1);
             return;
         }
         const ctx = this.ctx;

@@ -20,8 +20,4 @@ export class InputManager {
     onKeyUp = (event) => {
         this.keysPressed.delete(event.key);
     };
-
-    isKeyPressed(key) {
-        return this.keysPressed.has(key);
-    }
 }
