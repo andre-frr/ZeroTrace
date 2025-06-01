@@ -140,10 +140,7 @@ Grupo █████`;
         ctx.shadowBlur = 0;
         ctx.restore();
 
-        const currentTime = Date.now();
-        const deltaTime = currentTime - this.lastGiseeUpdate;
-        this.lastGiseeUpdate = currentTime;
-        this.gisee.updateAnimation(deltaTime);
+        this.gisee.updateAnimation();
         this.gisee.updateMovement(gameOverBox);
         this.gisee.render();
     }
@@ -186,10 +183,7 @@ Grupo █████`;
         ctx.shadowBlur = 0;
         ctx.restore();
 
-        const currentTime = Date.now();
-        const deltaTime = currentTime - this.lastGiseeUpdate;
-        this.lastGiseeUpdate = currentTime;
-        this.gisee.updateAnimation(deltaTime);
+        this.gisee.updateAnimation();
         this.gisee.updateMovement(winBox);
         this.gisee.render();
     }
@@ -212,7 +206,7 @@ Grupo █████`;
         ctx.restore();
     }
 
-    update(deltaTime) {
+    update() {
         const now = Date.now();
         if (now - this.lastUpdateTime > 16) {
             this.virusScale += this.virusScaleDirection;
@@ -222,7 +216,7 @@ Grupo █████`;
             this.lastUpdateTime = now;
         }
         this.hearts.updatePulse();
-        this.gisee.updateAnimation(deltaTime);
+        this.gisee.updateAnimation();
         if (window.gameOver && this.gisee.ready) {
             const boxWidth = 600, boxHeight = 350;
             const boxX = (this.ctx.canvas.width - boxWidth) / 2;

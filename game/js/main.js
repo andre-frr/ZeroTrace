@@ -63,7 +63,6 @@ function update() {
     if (gameStarted && !window.gameOver) {
         levelManager.update();
     }
-    hud.update(16);
 }
 
 function render() {

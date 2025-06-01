@@ -66,9 +66,14 @@ export class Gisee {
         }
     }
 
-    updateAnimation(deltaTime) {
+    updateAnimation() {
         if (!this.ready || this.states[this.currentState].length === 0) return;
-        this.accumulated += deltaTime;
+
+        const now = Date.now();
+        const elapsed = now - this.lastUpdate;
+        this.lastUpdate = now;
+
+        this.accumulated += elapsed;
         if (this.accumulated >= this.frameInterval) {
             this.currentFrame = (this.currentFrame + 1) % this.states[this.currentState].length;
             this.accumulated = 0;
