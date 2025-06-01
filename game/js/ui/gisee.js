@@ -96,21 +96,21 @@ export class Gisee {
     }
 
     // Atualiza o movimento da mascote dentro da área definida
-    updateMovement(gameOverBox) {
+    updateMovement(containerBox) {
         if (!this.ready) return;
         const frame = this.getCurrentFrame();
         if (!frame) return;
-        this.updatePosition(frame, gameOverBox);
+        this.updatePosition(frame, containerBox);
         this.updateState();
-        this.handleMovement(frame, gameOverBox);
+        this.handleMovement(frame, containerBox);
     }
 
     // Atualiza a posição vertical da mascote alinhando com o "chão"
-    updatePosition(frame, gameOverBox) {
+    updatePosition(frame, containerBox) {
         if (!this.positionInitialized || this.lastFrameHeight !== frame.height) {
-            this.feetPosition = gameOverBox.y;
+            this.feetPosition = containerBox.y;
             if (!this.positionInitialized) {
-                this.x = gameOverBox.x + (gameOverBox.width / 2) - (frame.width / 2);
+                this.x = containerBox.x + (containerBox.width / 2) - (frame.width / 2);
                 this.positionInitialized = true;
             }
             this.lastFrameHeight = frame.height;
@@ -136,11 +136,11 @@ export class Gisee {
     }
 
     // Move a mascote horizontalmente e verifica colisões com bordas
-    handleMovement(frame, gameOverBox) {
+    handleMovement(frame, containerBox) {
         if (this.currentState !== 'MOVING') return;
         this.x += this.speed * this.direction;
-        const leftBoundary = gameOverBox.x;
-        const rightBoundary = gameOverBox.x + gameOverBox.width - frame.width;
+        const leftBoundary = containerBox.x;
+        const rightBoundary = containerBox.x + containerBox.width - frame.width;
         if (this.x < leftBoundary) {
             this.x = leftBoundary;
             this.direction = 1;

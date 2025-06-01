@@ -107,92 +107,121 @@ Grupo █████`;
         ctx.shadowBlur = 0;
     }
 
-    // Apresenta a mensagem de fim de jogo com animação da mascote
-    drawGameOverMessage() {
+    // Método genérico para desenhar um ecrã de mensagem (game over ou vitória)
+    drawMessageScreen(options) {
+        const {
+            title,
+            messages,
+            buttonText,
+            primaryColor,
+            gradientStart,
+            gradientEnd,
+            showIcons = false
+        } = options;
+
         const ctx = this.ctx;
         const boxWidth = 600, boxHeight = 350;
         const boxX = (ctx.canvas.width - boxWidth) / 2;
         const boxY = (ctx.canvas.height - boxHeight) / 2;
-        const gameOverBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
+        const containerBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
+
         ctx.save();
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
         ctx.lineWidth = 4;
         const now = Date.now();
         const pulseIntensity = Math.sin(now / 200) * 0.3 + 0.7;
-        const redGlow = Math.floor(255 * pulseIntensity);
-        ctx.strokeStyle = `rgb(${redGlow}, 0, 0)`;
+        const glowValue = Math.floor(255 * pulseIntensity);
+
+        // Define a cor baseada em vermelho (game over) ou verde (vitória)
+        if (primaryColor === 'red') {
+            ctx.strokeStyle = `rgb(${glowValue}, 0, 0)`;
+            ctx.shadowColor = '#ff0000';
+        } else {
+            ctx.strokeStyle = `rgb(0, ${glowValue}, 0)`;
+            ctx.shadowColor = '#00ff00';
+        }
+
+        // Cria o gradiente
         const gradient = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
-        gradient.addColorStop(0, 'rgba(80, 0, 0, 0.9)');
-        gradient.addColorStop(1, 'rgba(40, 0, 0, 0.9)');
+        gradient.addColorStop(0, gradientStart);
+        gradient.addColorStop(1, gradientEnd);
         ctx.fillStyle = gradient;
+
+        // Desenha a caixa
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
         ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-        ctx.fillStyle = 'red';
+
+        // Desenha o título
+        ctx.fillStyle = primaryColor;
         ctx.font = '42px VT323';
         ctx.textAlign = 'center';
-        ctx.shadowColor = '#ff0000';
         ctx.shadowBlur = 10;
-        ctx.fillText('[ALERTA DE SEGURANÇA]', ctx.canvas.width / 2, boxY + 60);
+        ctx.fillText(title, ctx.canvas.width / 2, boxY + 60);
+
+        // Desenha as mensagens
         ctx.font = '32px VT323';
-        ctx.fillText('Firewall ativada! Foste detetado!', ctx.canvas.width / 2, boxY + 160);
-        ctx.fillText('Ligação terminada forçadamente.', ctx.canvas.width / 2, boxY + 200);
+        messages.forEach((message, index) => {
+            ctx.fillText(message, ctx.canvas.width / 2, boxY + 140 + (index * 40));
+        });
+
+        // Desenha o texto do botão
         ctx.fillStyle = 'white';
         ctx.font = '26px VT323';
-        ctx.fillText('Prima ENTER para tentar novamente', ctx.canvas.width / 2, boxY + boxHeight - 50);
-        this.drawAlertIcon(ctx, boxX + 80, boxY + 60);
-        this.drawAlertIcon(ctx, boxX + boxWidth - 80, boxY + 60);
+        ctx.fillText(buttonText, ctx.canvas.width / 2, boxY + boxHeight - 50);
+
+        // Desenha ícones se necessário
+        if (showIcons) {
+            this.drawAlertIcon(ctx, boxX + 80, boxY + 60);
+            this.drawAlertIcon(ctx, boxX + boxWidth - 80, boxY + 60);
+        }
+
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 0;
         ctx.restore();
 
+        // Atualiza e renderiza a mascote
         this.gisee.updateAnimation();
-        this.gisee.updateMovement(gameOverBox);
+        this.gisee.updateMovement(containerBox);
         this.gisee.render();
+    }
+
+    // Apresenta a mensagem de fim de jogo com animação da mascote
+    drawGameOverMessage() {
+        this.drawMessageScreen({
+            title: '[ALERTA DE SEGURANÇA]',
+            messages: [
+                'Intruso detectado',
+                'Acesso negado ao sistema'
+            ],
+            buttonText: 'Prima ENTER para tentar novamente',
+            primaryColor: 'red',
+            gradientStart: 'rgba(80, 0, 0, 0.9)',
+            gradientEnd: 'rgba(40, 0, 0, 0.9)',
+            showIcons: true
+        });
     }
 
     // Apresenta a mensagem de vitória ao concluir um nível
     drawWinScreen(levelName, isLastLevel = false) {
-        const ctx = this.ctx;
-        const boxWidth = 600, boxHeight = 350;
-        const boxX = (ctx.canvas.width - boxWidth) / 2;
-        const boxY = (ctx.canvas.height - boxHeight) / 2;
-        const winBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
-        ctx.save();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.lineWidth = 4;
-        const now = Date.now();
-        const pulseIntensity = Math.sin(now / 200) * 0.3 + 0.7;
-        const greenGlow = Math.floor(255 * pulseIntensity);
-        ctx.strokeStyle = `rgb(0, ${greenGlow}, 0)`;
-        const gradient = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
-        gradient.addColorStop(0, 'rgba(0, 80, 0, 0.9)');
-        gradient.addColorStop(1, 'rgba(0, 40, 0, 0.9)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-        ctx.fillStyle = '#00ff00';
-        ctx.font = '42px VT323';
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#00ff00';
-        ctx.shadowBlur = 10;
-        ctx.fillText('[MISSION SUCCESS]', ctx.canvas.width / 2, boxY + 60);
-        ctx.font = '32px VT323';
-        ctx.fillText(isLastLevel ? 'All levels completed!' : 'Level completed!', ctx.canvas.width / 2, boxY + 140);
-        ctx.font = '26px VT323';
-        ctx.fillStyle = 'white';
-        ctx.fillText(isLastLevel ? 'Press ENTER to restart' : 'Press ENTER to continue', ctx.canvas.width / 2, boxY + boxHeight - 50);
-        ctx.font = '22px VT323';
-        ctx.fillStyle = '#00ff00';
-        ctx.fillText(levelName, ctx.canvas.width / 2, boxY + 200);
-        ctx.shadowColor = '#000000';
-        ctx.shadowBlur = 0;
-        ctx.restore();
+        const messages = [];
 
-        this.gisee.updateAnimation();
-        this.gisee.updateMovement(winBox);
-        this.gisee.render();
+        if (isLastLevel) {
+            messages.push('Todos os níveis concluídos!');
+        } else if (levelName) {
+            messages.push(`${levelName} concluído com sucesso!`);
+        }
+
+        this.drawMessageScreen({
+            title: '[NÍVEL CONCLUÍDO]',
+            messages: messages,
+            buttonText: isLastLevel ? 'Missão concluída' : 'Prima ENTER para continuar',
+            primaryColor: '#00ff00',
+            gradientStart: 'rgba(0, 80, 0, 0.9)',
+            gradientEnd: 'rgba(0, 40, 0, 0.9)',
+            showIcons: false
+        });
     }
 
     // Desenha um ícone de alerta triangular com ponto de exclamação
@@ -230,8 +259,8 @@ Grupo █████`;
             const boxWidth = 600, boxHeight = 350;
             const boxX = (this.ctx.canvas.width - boxWidth) / 2;
             const boxY = (this.ctx.canvas.height - boxHeight) / 2;
-            const gameOverBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
-            this.gisee.updateMovement(gameOverBox);
+            const containerBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
+            this.gisee.updateMovement(containerBox);
         }
     }
 
@@ -307,14 +336,11 @@ Grupo █████`;
             timerElem.value = this.localTime;
             if (this.localTime >= this.maxTime - 5) {
                 timerElem.classList.add("almost");
-            } else {
-                timerElem.classList.remove("almost");
             }
             if (this.localTime >= this.maxTime) {
-                timerElem.classList.remove("almost");
-                this.stopTimer();
-                timerElem.style.display = "none";
+                timerElem.classList.add("timer-blink");
                 window.gameOver = true;
+                this.stopTimer();
             }
         }, 1000);
     }
