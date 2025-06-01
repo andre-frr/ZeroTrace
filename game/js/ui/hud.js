@@ -1,6 +1,8 @@
+// game/js/ui/hud.js
 import {Gisee} from './gisee.js';
 import {Hearts} from './hearts.js';
 
+// Gere e apresenta a interface do utilizador no jogo
 export class HUD {
     constructor(ctx) {
         this.ctx = ctx;
@@ -26,6 +28,7 @@ export class HUD {
         this.timerElem = this.initializeTimerElement();
     }
 
+    // Cria o elemento da barra de progresso do temporizador
     initializeTimerElement() {
         let timerElem = document.getElementById("hud-timer");
         if (!timerElem) {
@@ -46,6 +49,7 @@ export class HUD {
         return timerElem;
     }
 
+    // Reinicia todos os temporizadores e esconde a barra de progresso
     resetAllTimers() {
         this.globalTime = 0;
         this.localTime = 0;
@@ -57,6 +61,7 @@ export class HUD {
         }
     }
 
+    // Apresenta a mensagem de introdução ao início do jogo
     drawIntroMessage() {
         const {ctx} = this;
         if (!HUD.introLogged) {
@@ -102,6 +107,7 @@ Grupo █████`;
         ctx.shadowBlur = 0;
     }
 
+    // Apresenta a mensagem de fim de jogo com animação da mascote
     drawGameOverMessage() {
         const ctx = this.ctx;
         const boxWidth = 600, boxHeight = 350;
@@ -145,6 +151,7 @@ Grupo █████`;
         this.gisee.render();
     }
 
+    // Apresenta a mensagem de vitória ao concluir um nível
     drawWinScreen(levelName, isLastLevel = false) {
         const ctx = this.ctx;
         const boxWidth = 600, boxHeight = 350;
@@ -188,6 +195,7 @@ Grupo █████`;
         this.gisee.render();
     }
 
+    // Desenha um ícone de alerta triangular com ponto de exclamação
     drawAlertIcon(ctx, x, y) {
         const size = 30;
         ctx.save();
@@ -206,6 +214,7 @@ Grupo █████`;
         ctx.restore();
     }
 
+    // Atualiza os elementos animados do HUD
     update() {
         const now = Date.now();
         if (now - this.lastUpdateTime > 16) {
@@ -226,6 +235,7 @@ Grupo █████`;
         }
     }
 
+    // Desenha a barra de progresso com o ícone de vírus
     renderProgress(currentCommandIndex, totalCommands) {
         if (!this.virusLoaded) return;
         const ctx = this.ctx;
@@ -264,14 +274,17 @@ Grupo █████`;
         ctx.restore();
     }
 
+    // Renderiza os corações de vida
     renderLives() {
         this.hearts.render();
     }
 
+    // Reduz uma vida e verifica se o jogo terminou
     loseLife() {
         return this.hearts.loseLife();
     }
 
+    // Inicia o temporizador para o limite de tempo do nível
     startTimer(timeLimitInSeconds) {
         this.stopTimer();
         this.resetAllTimers();
@@ -306,6 +319,7 @@ Grupo █████`;
         }, 1000);
     }
 
+    // Para o temporizador e esconde a barra de progresso
     stopTimer() {
         if (this.timerHandler) {
             clearInterval(this.timerHandler);

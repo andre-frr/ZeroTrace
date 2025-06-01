@@ -1,3 +1,4 @@
+// game/js/main.js
 import {InputManager} from './core/inputManager.js';
 import {LevelManager} from './core/levelManager.js';
 import {HUD} from './ui/hud.js';
@@ -6,16 +7,18 @@ import {Level2} from './levels/level2.js';
 import {Level3} from './levels/level3.js';
 import {Level4} from './levels/level4.js';
 
+// Ponto de entrada principal: inicializa o jogo, carrega recursos e inicia o ciclo de jogo
 const game = {};
-window.game = game; // Make game globally accessible
+window.game = game; // Torna o jogo acessível globalmente
 const sounds = {typing: "", ambience: "", error: "", defeat: "", victory: ""};
 game.sounds = sounds;
-game.defeatPlayed = false; // Track defeat sound state
+game.defeatPlayed = false; // Controla o estado do som de derrota
 
 let ctx, canvas, levelManager, inputManager, hud, gameStarted = false;
 window.gameOver = false;
 let bgImage, bgLoaded = false, bgScrollY = 0, bgScrollSpeed = 1;
 
+// Configura o jogo quando a janela carrega
 window.onload = function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
@@ -27,24 +30,28 @@ window.onload = function init() {
     levelManager = new LevelManager(ctx);
     game.levelManager = levelManager;
 
+    // Carrega a imagem de fundo
     bgImage = new Image();
     bgImage.src = './assets/images/bg.webp';
     bgImage.onload = () => {
         bgLoaded = true;
     };
 
+    // Inicializa o gestor de áudio
     audioManager();
 
+    // Carrega os níveis do jogo
     const level1 = new Level1(ctx, game);
     const level2 = new Level2(ctx, game);
     const level3 = new Level3(ctx, game);
     const level4 = new Level4(ctx, game);
     levelManager.loadLevels([level1, level2, level3, level4]);
 
+    // Configura o gestor de input
     inputManager.initialize(loadHandler);
     gameLoop();
 
-    // Unlock all audio on first physical keyboard event, but skip ambience
+    // Desbloqueia o áudio no primeiro evento de teclado físico
     window.addEventListener('keydown', function unlockAudioOnce() {
         for (const key in game.sounds) {
             const sound = game.sounds[key];
@@ -62,13 +69,14 @@ window.onload = function init() {
     }, {once: true});
 };
 
+// Processa o input do teclado e direciona para o handler correto
 function loadHandler(key) {
     if (!gameStarted && key === 'Enter') {
         gameStarted = true;
-        game.defeatPlayed = false; // Reset defeat flag on new game
+        game.defeatPlayed = false; // Reinicia a flag de derrota no novo jogo
         levelManager.startLevel(0);
     } else if (window.gameOver && key === 'Enter') {
-        game.defeatPlayed = false; // Reset defeat flag on restart
+        game.defeatPlayed = false; // Reinicia a flag de derrota ao recomeçar
         window.location.reload();
     } else if (gameStarted && !window.gameOver) {
         const currentLevel = levelManager.levels[levelManager.currentLevel];
@@ -78,12 +86,14 @@ function loadHandler(key) {
     }
 }
 
+// Atualiza o estado do jogo
 function update() {
     if (gameStarted && !window.gameOver) {
         levelManager.update();
     }
 }
 
+// Desenha todos os elementos do jogo
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
@@ -101,6 +111,7 @@ function render() {
     levelManager.render();
 }
 
+// Desenha o fundo animado do jogo
 function drawBackground() {
     if (bgLoaded) {
         bgScrollY += bgScrollSpeed;
@@ -112,12 +123,14 @@ function drawBackground() {
     }
 }
 
+// Ciclo principal do jogo: atualiza e renderiza a cada frame
 function gameLoop() {
     update();
     render();
     requestAnimationFrame(gameLoop);
 }
 
+// Inicializa e configura todos os elementos de áudio
 function audioManager() {
     game.sounds.typing = document.getElementById('type');
     game.sounds.ambience = document.getElementById('ambience');
@@ -125,6 +138,7 @@ function audioManager() {
     game.sounds.defeat = document.getElementById('defeat');
     game.sounds.victory = document.getElementById('victory');
 
+    // Configura o volume para todos os sons
     for (const key in game.sounds) {
         const sound = game.sounds[key];
         if (sound && typeof sound.volume === 'number') {

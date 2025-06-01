@@ -1,4 +1,7 @@
+// game/js/entities/heartEmpty.js
+// Entidade de coração vazio (vida perdida)
 const heartEmpty = Entity.extend(function () {
+    // Configura o sprite para representar um coração vazio
     this.constructor = function () {
         this.super();
         this.sprite.img = "";

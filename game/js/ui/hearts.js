@@ -1,12 +1,15 @@
+// game/js/ui/hearts.js
 import '../entities/heartEmpty.js';
 import '../entities/heartFull.js';
 
+// Gere e apresenta as vidas do jogador (corações)
 export class Hearts {
     constructor(ctx, maxLives = 5) {
         this.ctx = ctx;
         this.maxLives = maxLives;
         this.lives = maxLives;
         this.hearts = [];
+        // Inicializa entidades de coração (cheio e vazio)
         for (let i = 0; i < this.maxLives; i++) {
             this.hearts.push({
                 full: new heartFull(), empty: new heartEmpty()
@@ -26,6 +29,7 @@ export class Hearts {
         this.heartScaleDirection = 0.01;
         this.heartPulseActive = false;
 
+        // Define o tamanho e posição do contentor e dos corações
         this.containerWidth = 250;
         this.containerHeight = 50;
         this.containerX = 40;
@@ -37,6 +41,7 @@ export class Hearts {
         this.startX = this.containerX + Math.round((this.containerWidth - this.totalHeartsWidth) / 2);
     }
 
+    // Atualiza o efeito de pulsar dos corações quando as vidas estão baixas
     updatePulse() {
         this.heartPulseActive = (this.lives <= 2 && this.lives > 0);
         if (this.heartPulseActive) {
@@ -49,6 +54,7 @@ export class Hearts {
         }
     }
 
+    // Desenha os corações no HUD com efeitos visuais apropriados
     render() {
         if (!this.heartsLoaded) return;
         const ctx = this.ctx;
@@ -67,16 +73,21 @@ export class Hearts {
             ctx.translate(heartX + this.heartWidth / 2, heartY + this.heartHeight / 2);
             ctx.scale(scale, scale);
             ctx.translate(-this.heartWidth / 2, -this.heartHeight / 2);
-            ctx.drawImage(heart.sprite.img, heart.sprite.sourceX, heart.sprite.sourceY, heart.sprite.sourceWidth, heart.sprite.sourceHeight, 0, 0, this.heartWidth, this.heartHeight);
+            ctx.drawImage(
+                heart.sprite.img,
+                heart.sprite.sourceX, heart.sprite.sourceY,
+                heart.sprite.sourceWidth, heart.sprite.sourceHeight,
+                0, 0, this.heartWidth, this.heartHeight
+            );
             ctx.restore();
         }
         ctx.restore();
     }
 
+    // Reduz uma vida e reproduz o som de erro apropriado
     loseLife() {
         if (this.lives > 1) {
             this.lives--;
-            // Play error sound only if not losing the last life
             if (window.game?.sounds?.error) {
                 window.game.sounds.error.currentTime = 0;
                 window.game.sounds.error.play();
@@ -85,7 +96,6 @@ export class Hearts {
         } else if (this.lives === 1) {
             this.lives = 0;
             window.gameOver = true;
-            // Play defeat sound only on game over, using a separate flag
             if (window.game?.sounds?.defeat && !window.game.defeatPlayed) {
                 window.game.sounds.defeat.currentTime = 0;
                 window.game.sounds.defeat.play();

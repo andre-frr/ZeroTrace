@@ -1,6 +1,9 @@
+// game/js/levels/base.js
 import {HUD} from "../ui/hud.js";
 
+// Classe base para níveis do jogo
 const BaseLevel = Class.extend(function () {
+    // Inicializa um nível com contexto, jogo, nome e comandos
     this.constructor = function (ctx, game, name, commands) {
         this.ctx = ctx;
         this.game = game;
@@ -21,6 +24,7 @@ const BaseLevel = Class.extend(function () {
         this.adjustCanvasHeight();
     };
 
+    // Ajusta a altura do canvas conforme o número de comandos do nível
     this.adjustCanvasHeight = function () {
         const commandHeight = 30;
         const baseHeight = 200;
@@ -30,6 +34,7 @@ const BaseLevel = Class.extend(function () {
         this.commandsAreaHeight = this.commands.length * commandHeight + 50;
     };
 
+    // Lida com o input do jogador e valida os comandos inseridos
     this.handleInput = function (key) {
         if (this.showWinScreen && key === 'Enter') {
             if (this.game.levelManager.currentLevel < this.game.levelManager.levels.length - 1) {
@@ -55,7 +60,7 @@ const BaseLevel = Class.extend(function () {
                     clearInterval(this.blinkInterval);
                     this.showWinScreen = true;
                     this.hud.stopTimer();
-                    // Play victory sound when level is completed
+                    // Toca som de vitória quando o nível é completado
                     if (this.game.sounds.victory) {
                         this.game.sounds.victory.currentTime = 0;
                         this.game.sounds.victory.play();
@@ -65,8 +70,6 @@ const BaseLevel = Class.extend(function () {
                 const hasLivesLeft = this.hud.loseLife();
                 this.commandHistory.push(this.input);
                 this.input = '';
-
-                // No error sound logic here; handled in loseLife()
 
                 if (!hasLivesLeft) {
                     const flashOverlay = document.createElement('div');
@@ -98,10 +101,12 @@ const BaseLevel = Class.extend(function () {
         this.game.sounds.typing.play();
     };
 
+    // Atualiza o estado do HUD do nível
     this.update = function () {
         this.hud.update();
     };
 
+    // Renderiza o nível e todos os seus elementos visuais
     this.render = function () {
         if (this.showWinScreen) {
             this.hud.drawWinScreen(this.name, this.game.levelManager.currentLevel === this.game.levelManager.levels.length - 1);
@@ -112,14 +117,17 @@ const BaseLevel = Class.extend(function () {
         const commandBoxWidth = 500;
         const commandBoxX = ctx.canvas.width - commandBoxWidth - 50;
 
+        // Desenha a caixa de comandos
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(commandBoxX, commandsAreaY, commandBoxWidth, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 1;
         ctx.strokeRect(commandBoxX, commandsAreaY, commandBoxWidth, this.commandsAreaHeight);
 
+        // Desenha as vidas
         this.hud.renderLives();
 
+        // Desenha os comandos completados e o atual
         ctx.fillStyle = 'green';
         ctx.font = '20px VT323';
         ctx.textAlign = 'left';
@@ -132,6 +140,7 @@ const BaseLevel = Class.extend(function () {
             ctx.fillText(this.commands[this.currentCommandIndex], commandBoxX + 10, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
+        // Desenha a área de input
         const inputAreaX = 50;
         const inputAreaY = ctx.canvas.height - 115;
         const inputAreaWidth = ctx.canvas.width - 100;
@@ -145,16 +154,19 @@ const BaseLevel = Class.extend(function () {
         ctx.lineWidth = 1;
         ctx.strokeRect(inputAreaX, inputAreaY - (this.commandHistory.length * lineHeight), inputAreaWidth, totalInputHeight);
 
+        // Desenha o histórico de comandos
         ctx.fillStyle = 'white';
         ctx.font = '20px VT323';
         this.commandHistory.forEach((cmd, index) => {
             ctx.fillText(`admin@desktop:~$ ${cmd}`, inputAreaX + 10, inputAreaY - (this.commandHistory.length * lineHeight) + (index * lineHeight) + 20);
         });
 
+        // Desenha o input atual com cursor piscante
         const displayInput = this.input + (this.blink ? '_' : '');
         ctx.fillStyle = this.currentCommandIndex < this.commands.length && this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
+        // Desenha o progresso do nível
         this.hud.renderProgress(this.currentCommandIndex, this.commands.length);
     };
 });

@@ -1,4 +1,7 @@
+// game/js/entities/heartFull.js
+// Entidade de coração cheio (vida ativa)
 const heartFull = Entity.extend(function () {
+    // Configura o sprite para representar um coração cheio
     this.constructor = function () {
         this.super();
         this.sprite.img = "";

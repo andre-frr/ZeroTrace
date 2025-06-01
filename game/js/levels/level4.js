@@ -1,6 +1,9 @@
+// game/js/levels/level4.js
 import {BaseLevel} from './base.js';
 
+// Nível 4: comandos com glitches e maior dificuldade
 const Level4 = BaseLevel.extend(function () {
+    // Define o nome, comandos e tempo limite do nível 4
     this.constructor = function (ctx, game) {
         const name = 'Level 4';
         const commands = [

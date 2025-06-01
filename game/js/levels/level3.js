@@ -1,6 +1,9 @@
+// game/js/levels/level3.js
 import {BaseLevel} from './base.js';
 
+// Nível 3: comandos avançados de sistema
 const Level3 = BaseLevel.extend(function () {
+    // Define o nome, comandos e tempo limite do nível 3
     this.constructor = function (ctx, game) {
         const name = 'Level 3';
         const commands = [

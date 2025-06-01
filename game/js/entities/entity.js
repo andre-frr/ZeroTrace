@@ -1,4 +1,7 @@
+// game/js/entities/entity.js
+// Classe base para entidades do jogo
 const Entity = Class.extend(function () {
+    // Define as propriedades básicas para todas as entidades
     this.sprite = {
         sourceX: 0,
         sourceY: 0,

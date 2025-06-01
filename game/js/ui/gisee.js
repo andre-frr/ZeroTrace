@@ -1,3 +1,5 @@
+// game/js/ui/gisee.js
+// Classe da mascote Gisee (animação e movimento)
 export class Gisee {
     constructor(ctx) {
         this.ANIMATION_FPS = 9;
@@ -28,6 +30,7 @@ export class Gisee {
         this.loadSprites();
     }
 
+    // Carrega os sprites de animação para os diferentes estados
     loadSprites() {
         const idleSprites = [
             "idle(1).png", "idle(2).png", "idle(3).png", "idle(4).png",
@@ -43,6 +46,7 @@ export class Gisee {
         this._loadSpriteList(movingSprites, this.states.MOVING, './assets/gisee/');
     }
 
+    // Carrega uma lista de sprites para um estado específico
     _loadSpriteList(spriteList, targetArray, basePath) {
         spriteList.forEach(spriteName => {
             const img = new Image();
@@ -57,6 +61,7 @@ export class Gisee {
         });
     }
 
+    // Atualiza o estado de carregamento dos sprites
     onSpriteLoaded() {
         this.loadedSprites++;
         if (this.loadedSprites === this.totalSprites) {
@@ -66,6 +71,7 @@ export class Gisee {
         }
     }
 
+    // Atualiza a animação e avança para o próximo frame
     updateAnimation() {
         if (!this.ready || this.states[this.currentState].length === 0) return;
 
@@ -84,10 +90,12 @@ export class Gisee {
         }
     }
 
+    // Obtém o frame atual da animação
     getCurrentFrame() {
         return this.states[this.currentState][this.currentFrame];
     }
 
+    // Atualiza o movimento da mascote dentro da área definida
     updateMovement(gameOverBox) {
         if (!this.ready) return;
         const frame = this.getCurrentFrame();
@@ -97,6 +105,7 @@ export class Gisee {
         this.handleMovement(frame, gameOverBox);
     }
 
+    // Atualiza a posição vertical da mascote alinhando com o "chão"
     updatePosition(frame, gameOverBox) {
         if (!this.positionInitialized || this.lastFrameHeight !== frame.height) {
             this.feetPosition = gameOverBox.y;
@@ -109,12 +118,14 @@ export class Gisee {
         this.y = this.feetPosition - frame.height;
     }
 
+    // Decide aleatoriamente se deve mudar de estado
     updateState() {
         if (!this.stateChangeRequested && Math.random() < this.STATE_CHANGE_CHANCE) {
             this.stateChangeRequested = true;
         }
     }
 
+    // Altera entre os estados parado e em movimento
     changeState() {
         this.currentState = this.currentState === 'IDLE' ? 'MOVING' : 'IDLE';
         this.currentFrame = 0;
@@ -124,6 +135,7 @@ export class Gisee {
         }
     }
 
+    // Move a mascote horizontalmente e verifica colisões com bordas
     handleMovement(frame, gameOverBox) {
         if (this.currentState !== 'MOVING') return;
         this.x += this.speed * this.direction;
@@ -140,6 +152,7 @@ export class Gisee {
         }
     }
 
+    // Desenha a mascote no canvas com orientação correta
     render() {
         if (!this.ready || !this.states[this.currentState].length) return;
         const frame = this.getCurrentFrame();
