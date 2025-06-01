@@ -55,16 +55,18 @@ const BaseLevel = Class.extend(function () {
                     clearInterval(this.blinkInterval);
                     this.showWinScreen = true;
                     this.hud.stopTimer();
+                    // Play victory sound when level is completed
+                    if (this.game.sounds.victory) {
+                        this.game.sounds.victory.currentTime = 0;
+                        this.game.sounds.victory.play();
+                    }
                 }
             } else {
                 const hasLivesLeft = this.hud.loseLife();
                 this.commandHistory.push(this.input);
                 this.input = '';
 
-                if (this.game.sounds.error) {
-                    this.game.sounds.error.currentTime = 0;
-                    this.game.sounds.error.play();
-                }
+                // No error sound logic here; handled in loseLife()
 
                 if (!hasLivesLeft) {
                     const flashOverlay = document.createElement('div');
@@ -107,11 +109,14 @@ const BaseLevel = Class.extend(function () {
         }
         const ctx = this.ctx;
         const commandsAreaY = 65;
+        const commandBoxWidth = 500;
+        const commandBoxX = ctx.canvas.width - commandBoxWidth - 50;
+
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
+        ctx.fillRect(commandBoxX, commandsAreaY, commandBoxWidth, this.commandsAreaHeight);
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 1;
-        ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
+        ctx.strokeRect(commandBoxX, commandsAreaY, commandBoxWidth, this.commandsAreaHeight);
 
         this.hud.renderLives();
 
@@ -119,12 +124,12 @@ const BaseLevel = Class.extend(function () {
         ctx.font = '20px VT323';
         ctx.textAlign = 'left';
         for (let i = 0; i < this.currentCommandIndex; i++) {
-            ctx.fillText(this.commands[i], ctx.canvas.width - 290, commandsAreaY + 30 + i * 30);
+            ctx.fillText(this.commands[i], commandBoxX + 10, commandsAreaY + 30 + i * 30);
         }
 
         if (this.currentCommandIndex < this.commands.length) {
             ctx.fillStyle = 'white';
-            ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
+            ctx.fillText(this.commands[this.currentCommandIndex], commandBoxX + 10, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
         const inputAreaX = 50;

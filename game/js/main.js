@@ -7,8 +7,10 @@ import {Level3} from './levels/level3.js';
 import {Level4} from './levels/level4.js';
 
 const game = {};
-const sounds = {typing: "", ambience: "", error: ""};
+window.game = game; // Make game globally accessible
+const sounds = {typing: "", ambience: "", error: "", defeat: "", victory: ""};
 game.sounds = sounds;
+game.defeatPlayed = false; // Track defeat sound state
 
 let ctx, canvas, levelManager, inputManager, hud, gameStarted = false;
 window.gameOver = false;
@@ -42,14 +44,31 @@ window.onload = function init() {
     inputManager.initialize(loadHandler);
     gameLoop();
 
-    window.addEventListener('click', () => game.sounds.ambience.play(), {once: true});
+    // Unlock all audio on first physical keyboard event, but skip ambience
+    window.addEventListener('keydown', function unlockAudioOnce() {
+        for (const key in game.sounds) {
+            const sound = game.sounds[key];
+            if (sound && typeof sound.play === 'function' && key !== 'ambience') {
+                try {
+                    sound.play().catch(() => {
+                    });
+                } catch {
+                }
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        }
+        window.removeEventListener('keydown', unlockAudioOnce);
+    }, {once: true});
 };
 
 function loadHandler(key) {
     if (!gameStarted && key === 'Enter') {
         gameStarted = true;
+        game.defeatPlayed = false; // Reset defeat flag on new game
         levelManager.startLevel(0);
     } else if (window.gameOver && key === 'Enter') {
+        game.defeatPlayed = false; // Reset defeat flag on restart
         window.location.reload();
     } else if (gameStarted && !window.gameOver) {
         const currentLevel = levelManager.levels[levelManager.currentLevel];
@@ -103,8 +122,13 @@ function audioManager() {
     game.sounds.typing = document.getElementById('type');
     game.sounds.ambience = document.getElementById('ambience');
     game.sounds.error = document.getElementById('error');
+    game.sounds.defeat = document.getElementById('defeat');
+    game.sounds.victory = document.getElementById('victory');
 
-    game.sounds.ambience.volume = 0.1;
-    game.sounds.typing.volume = 0.1;
-    game.sounds.error.volume = 0.08;
+    for (const key in game.sounds) {
+        const sound = game.sounds[key];
+        if (sound && typeof sound.volume === 'number') {
+            sound.volume = 0.1;
+        }
+    }
 }

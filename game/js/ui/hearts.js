@@ -76,10 +76,21 @@ export class Hearts {
     loseLife() {
         if (this.lives > 1) {
             this.lives--;
+            // Play error sound only if not losing the last life
+            if (window.game?.sounds?.error) {
+                window.game.sounds.error.currentTime = 0;
+                window.game.sounds.error.play();
+            }
             return true;
         } else if (this.lives === 1) {
             this.lives = 0;
             window.gameOver = true;
+            // Play defeat sound only on game over, using a separate flag
+            if (window.game?.sounds?.defeat && !window.game.defeatPlayed) {
+                window.game.sounds.defeat.currentTime = 0;
+                window.game.sounds.defeat.play();
+                window.game.defeatPlayed = true;
+            }
             return false;
         }
         return false;
