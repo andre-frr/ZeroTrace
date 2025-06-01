@@ -14,7 +14,6 @@ const Entity = Class.extend(function () {
 
     this.constructor = function () {
     };
-
     this.update = function () {
     };
 });

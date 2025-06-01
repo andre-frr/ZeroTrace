@@ -1,7 +1,7 @@
 import {BaseLevel} from './base.js';
 
-export class Level1 extends BaseLevel {
-    constructor(ctx, game) {
+const Level1 = BaseLevel.extend(function () {
+    this.constructor = function (ctx, game) {
         const name = 'Level 1';
         const commands = [
             'connect -secure',
@@ -11,7 +11,8 @@ export class Level1 extends BaseLevel {
             'upload -payload',
             'disconnect -trace'
         ];
-        const hudImagePath = './assets/images/virus.png';
-        super(ctx, game, name, commands, hudImagePath);
-    }
-}
+        this.super(ctx, game, name, commands);
+    };
+});
+
+export {Level1};

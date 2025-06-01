@@ -1,4 +1,12 @@
-html, body {
+:root {
+    --timer-height: 17px;
+    --timer-bg: #eee;
+    --timer-almost-bg: #ff2222;
+    --font-family: 'VT323', monospace;
+}
+
+html, body, canvas {
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -6,10 +14,6 @@ html, body {
 
 canvas {
     display: block;
-}
-
-html, body, canvas {
-    font-family: 'VT323', monospace;
 }
 
 @keyframes flash {
@@ -30,15 +34,14 @@ html, body, canvas {
     }
 }
 
-/* Timer warning (últimos 5 segundos) */
 #hud-timer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 17px;
+    height: var(--timer-height);
     z-index: 1000;
-    background-color: #eee;
+    background-color: var(--timer-bg);
     display: none;
 }
 
@@ -50,10 +53,7 @@ html, body, canvas {
     background-color: #222 !important;
 }
 
-#hud-timer.almost::-webkit-progress-value {
-    background-color: #ff2222 !important;
-}
-
+#hud-timer.almost::-webkit-progress-value,
 #hud-timer.almost::-moz-progress-bar {
-    background-color: #ff2222 !important;
+    background-color: var(--timer-almost-bg) !important;
 }

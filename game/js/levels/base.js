@@ -1,9 +1,9 @@
 import {HUD} from "../ui/hud.js";
 
-export class BaseLevel {
-    constructor(ctx, game, name, commands, hudImagePath) {
+const BaseLevel = Class.extend(function () {
+    this.constructor = function (ctx, game, name, commands) {
         this.ctx = ctx;
-        this.game = game; // Armazena o objeto do jogo
+        this.game = game;
         this.name = name;
         this.commands = commands;
         this.currentCommandIndex = 0;
@@ -15,21 +15,21 @@ export class BaseLevel {
         }, 500);
 
         this.commandHistory = [];
-        this.hud = new HUD(ctx, hudImagePath);
+        this.hud = new HUD(ctx);
 
         this.adjustCanvasHeight();
-    }
+    };
 
-    adjustCanvasHeight() {
+    this.adjustCanvasHeight = function () {
         const commandHeight = 30;
         const baseHeight = 200;
         const requiredHeight = baseHeight + this.commands.length * commandHeight;
 
         this.ctx.canvas.height = Math.max(this.ctx.canvas.height, requiredHeight);
         this.commandsAreaHeight = this.commands.length * commandHeight + 50;
-    }
+    };
 
-    handleInput(key) {
+    this.handleInput = function (key) {
         if (key === 'Backspace') {
             this.input = this.input.slice(0, -1);
         } else if (key === 'Enter') {
@@ -39,24 +39,18 @@ export class BaseLevel {
                 this.input = '';
                 if (this.currentCommandIndex >= this.commands.length) {
                     this.completed = true;
-                    console.log(`${this.name} completed!`);
                     clearInterval(this.blinkInterval);
                 }
             } else {
-                // Comando errado ou incompleto - perde uma vida
                 const hasLivesLeft = this.hud.loseLife();
-
-                // Feedback visual para o erro
                 this.commandHistory.push(this.input);
                 this.input = '';
 
-                // Reproduz som de erro se existir
                 if (this.game.sounds.error) {
                     this.game.sounds.error.currentTime = 0;
                     this.game.sounds.error.play();
                 }
 
-                // Game over se não tiver mais vidas
                 if (!hasLivesLeft) {
                     const flashOverlay = document.createElement('div');
                     flashOverlay.style = `
@@ -83,18 +77,16 @@ export class BaseLevel {
             this.input += key;
         }
 
-        this.game.sounds.typing.currentTime = 0; // Reinicia a posição de reprodução
+        this.game.sounds.typing.currentTime = 0;
         this.game.sounds.typing.play();
-    }
+    };
 
-    update() {
+    this.update = function () {
         this.hud.update();
-    }
+    };
 
-    render() {
-        const {ctx} = this;
-
-        // Área de comandos
+    this.render = function () {
+        const ctx = this.ctx;
         const commandsAreaY = 65;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
@@ -102,7 +94,6 @@ export class BaseLevel {
         ctx.lineWidth = 1;
         ctx.strokeRect(ctx.canvas.width - 300, commandsAreaY, 250, this.commandsAreaHeight);
 
-        // Renderiza os corações de vida
         this.hud.renderLives();
 
         ctx.fillStyle = 'green';
@@ -117,13 +108,11 @@ export class BaseLevel {
             ctx.fillText(this.commands[this.currentCommandIndex], ctx.canvas.width - 290, commandsAreaY + 30 + this.currentCommandIndex * 30);
         }
 
-        // Área de input
         const inputAreaX = 50;
         const inputAreaY = ctx.canvas.height - 115;
         const inputAreaWidth = ctx.canvas.width - 100;
         const inputAreaHeight = 50;
         const lineHeight = 25;
-
         const totalInputHeight = inputAreaHeight + (this.commandHistory.length * lineHeight);
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -142,7 +131,9 @@ export class BaseLevel {
         ctx.fillStyle = this.currentCommandIndex < this.commands.length && this.input === this.commands[this.currentCommandIndex].slice(0, this.input.length) ? 'white' : 'red';
         ctx.fillText(`admin@desktop:~$ ${displayInput}`, inputAreaX + 10, inputAreaY + 30);
 
-        // Renderiza a barra de progresso
         this.hud.renderProgress(this.currentCommandIndex, this.commands.length);
-    }
-}
+    };
+});
+
+export {BaseLevel};
+window.BaseLevel = BaseLevel;
