@@ -8,6 +8,4 @@ const heartFull = Entity.extend(function () {
         this.sprite.sourceWidth = 382;
         this.sprite.sourceHeight = 330;
     };
-    this.update = function () {
-    };
 });

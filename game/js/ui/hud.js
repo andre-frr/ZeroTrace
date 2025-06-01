@@ -23,8 +23,13 @@ export class HUD {
         this.maxTime = 45;
         this.lastGiseeUpdate = Date.now();
 
-        if (!document.getElementById("hud-timer")) {
-            const timerElem = document.createElement("progress");
+        this.timerElem = this.initializeTimerElement();
+    }
+
+    initializeTimerElement() {
+        let timerElem = document.getElementById("hud-timer");
+        if (!timerElem) {
+            timerElem = document.createElement("progress");
             timerElem.id = "hud-timer";
             timerElem.max = this.maxTime;
             timerElem.value = 0;
@@ -38,6 +43,18 @@ export class HUD {
             timerElem.style.display = "none";
             document.body.appendChild(timerElem);
         }
+        return timerElem;
+    }
+
+    resetAllTimers() {
+        this.globalTime = 0;
+        this.localTime = 0;
+        if (this.timerElem) {
+            this.timerElem.value = 0;
+            this.timerElem.classList.remove("almost");
+            this.timerElem.classList.remove("timer-blink");
+            this.timerElem.style.display = "none";
+        }
     }
 
     drawIntroMessage() {
@@ -46,7 +63,6 @@ export class HUD {
             console.log("[HUD] Mensagem inicial apresentada ao jogador.");
             HUD.introLogged = true;
         }
-
         const message = `[Conexão estabelecida…]
 
 Canal seguro ativado.
@@ -69,23 +85,19 @@ Mas lembra-te: se fores apanhado... nós nunca falámos.
 
 Boa sorte,
 Grupo █████`;
-
         const lines = message.split('\n');
         const lineHeight = 30;
         const startX = ctx.canvas.width / 2;
         let startY = ctx.canvas.height / 2 - (lines.length * lineHeight) / 2;
-
         ctx.fillStyle = 'white';
         ctx.font = '28px VT323';
         ctx.textAlign = 'center';
         ctx.shadowColor = '#00ff00';
         ctx.shadowBlur = 10;
-
         lines.forEach((line) => {
             ctx.fillText(line, startX, startY);
             startY += lineHeight;
         });
-
         ctx.shadowColor = '#000000';
         ctx.shadowBlur = 0;
     }
@@ -136,12 +148,56 @@ Grupo █████`;
         this.gisee.render();
     }
 
+    drawWinScreen(levelName, isLastLevel = false) {
+        const ctx = this.ctx;
+        const boxWidth = 600, boxHeight = 350;
+        const boxX = (ctx.canvas.width - boxWidth) / 2;
+        const boxY = (ctx.canvas.height - boxHeight) / 2;
+        const winBox = {x: boxX, y: boxY, width: boxWidth, height: boxHeight};
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.lineWidth = 4;
+        const now = Date.now();
+        const pulseIntensity = Math.sin(now / 200) * 0.3 + 0.7;
+        const greenGlow = Math.floor(255 * pulseIntensity);
+        ctx.strokeStyle = `rgb(0, ${greenGlow}, 0)`;
+        const gradient = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
+        gradient.addColorStop(0, 'rgba(0, 80, 0, 0.9)');
+        gradient.addColorStop(1, 'rgba(0, 40, 0, 0.9)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        ctx.fillStyle = '#00ff00';
+        ctx.font = '42px VT323';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#00ff00';
+        ctx.shadowBlur = 10;
+        ctx.fillText('[MISSION SUCCESS]', ctx.canvas.width / 2, boxY + 60);
+        ctx.font = '32px VT323';
+        ctx.fillText(isLastLevel ? 'All levels completed!' : 'Level completed!', ctx.canvas.width / 2, boxY + 140);
+        ctx.font = '26px VT323';
+        ctx.fillStyle = 'white';
+        ctx.fillText(isLastLevel ? 'Press ENTER to restart' : 'Press ENTER to continue', ctx.canvas.width / 2, boxY + boxHeight - 50);
+        ctx.font = '22px VT323';
+        ctx.fillStyle = '#00ff00';
+        ctx.fillText(levelName, ctx.canvas.width / 2, boxY + 200);
+        ctx.shadowColor = '#000000';
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+        const currentTime = Date.now();
+        const deltaTime = currentTime - this.lastGiseeUpdate;
+        this.lastGiseeUpdate = currentTime;
+        this.gisee.updateAnimation(deltaTime);
+        this.gisee.updateMovement(winBox);
+        this.gisee.render();
+    }
+
     drawAlertIcon(ctx, x, y) {
         const size = 30;
         ctx.save();
         ctx.translate(x, y);
-
-        // Triângulo de aviso
         ctx.fillStyle = 'red';
         ctx.beginPath();
         ctx.moveTo(0, -size);
@@ -149,13 +205,10 @@ Grupo █████`;
         ctx.lineTo(-size, size);
         ctx.closePath();
         ctx.fill();
-
-        // Ponto de exclamação
         ctx.fillStyle = 'white';
         ctx.font = '30px VT323';
         ctx.textAlign = 'center';
         ctx.fillText('!', 0, 10);
-
         ctx.restore();
     }
 
@@ -230,13 +283,17 @@ Grupo █████`;
         this.gisee.resetPosition();
     }
 
-    startTimer() {
+    startTimer(timeLimitInSeconds) {
         this.stopTimer();
-        this.localTime = 0;
-        const timerElem = document.getElementById("hud-timer");
-        timerElem.classList.remove("almost");
+        this.resetAllTimers();
+        if (timeLimitInSeconds !== undefined) {
+            this.maxTime = timeLimitInSeconds;
+        }
+        const timerElem = this.timerElem;
+        timerElem.max = this.maxTime;
         timerElem.value = 0;
         timerElem.style.display = "block";
+        timerElem.classList.remove("almost");
         this.timerHandler = setInterval(() => {
             if (window.gameOver) {
                 this.stopTimer();
@@ -264,7 +321,7 @@ Grupo █████`;
             clearInterval(this.timerHandler);
             this.timerHandler = null;
         }
-        const timerElem = document.getElementById("hud-timer");
+        const timerElem = this.timerElem;
         if (timerElem) {
             timerElem.style.display = "none";
             timerElem.classList.remove("almost");

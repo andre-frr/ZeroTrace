@@ -9,6 +9,7 @@ const BaseLevel = Class.extend(function () {
         this.currentCommandIndex = 0;
         this.input = '';
         this.completed = false;
+        this.showWinScreen = false;
         this.blink = true;
         this.blinkInterval = setInterval(() => {
             this.blink = !this.blink;
@@ -30,6 +31,18 @@ const BaseLevel = Class.extend(function () {
     };
 
     this.handleInput = function (key) {
+        if (this.showWinScreen && key === 'Enter') {
+            if (this.game.levelManager.currentLevel < this.game.levelManager.levels.length - 1) {
+                this.game.levelManager.startLevel(this.game.levelManager.currentLevel + 1);
+            } else {
+                window.gameOver = false;
+                this.game.levelManager.currentLevel = 0;
+                this.game.levelManager.startLevel(0);
+            }
+            return;
+        }
+        if (this.completed || this.showWinScreen) return;
+
         if (key === 'Backspace') {
             this.input = this.input.slice(0, -1);
         } else if (key === 'Enter') {
@@ -40,6 +53,7 @@ const BaseLevel = Class.extend(function () {
                 if (this.currentCommandIndex >= this.commands.length) {
                     this.completed = true;
                     clearInterval(this.blinkInterval);
+                    this.showWinScreen = true;
                 }
             } else {
                 const hasLivesLeft = this.hud.loseLife();
@@ -86,6 +100,13 @@ const BaseLevel = Class.extend(function () {
     };
 
     this.render = function () {
+        if (this.showWinScreen) {
+            this.hud.drawWinScreen(
+                this.name,
+                this.game.levelManager.currentLevel === this.game.levelManager.levels.length - 1
+            );
+            return;
+        }
         const ctx = this.ctx;
         const commandsAreaY = 65;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';

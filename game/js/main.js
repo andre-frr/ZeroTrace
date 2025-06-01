@@ -2,6 +2,9 @@ import {InputManager} from './core/inputManager.js';
 import {LevelManager} from './core/levelManager.js';
 import {HUD} from './ui/hud.js';
 import {Level1} from './levels/level1.js';
+import {Level2} from './levels/level2.js';
+import {Level3} from './levels/level3.js';
+import {Level4} from './levels/level4.js';
 
 const game = {};
 const sounds = {typing: "", ambience: "", error: ""};
@@ -20,6 +23,7 @@ window.onload = function init() {
     hud = new HUD(ctx, './assets/images/virus.png');
     inputManager = new InputManager();
     levelManager = new LevelManager(ctx);
+    game.levelManager = levelManager;
 
     bgImage = new Image();
     bgImage.src = './assets/images/bg.webp';
@@ -30,7 +34,10 @@ window.onload = function init() {
     audioManager();
 
     const level1 = new Level1(ctx, game);
-    levelManager.loadLevels([level1]);
+    const level2 = new Level2(ctx, game);
+    const level3 = new Level3(ctx, game);
+    const level4 = new Level4(ctx, game);
+    levelManager.loadLevels([level1, level2, level3, level4]);
 
     inputManager.initialize(loadHandler);
     gameLoop();
@@ -43,10 +50,10 @@ function loadHandler(key) {
         gameStarted = true;
         levelManager.startLevel(0);
     } else if (window.gameOver && key === 'Enter') {
-        resetGame();
+        window.location.reload();
     } else if (gameStarted && !window.gameOver) {
         const currentLevel = levelManager.levels[levelManager.currentLevel];
-        if (currentLevel) {
+        if (currentLevel && typeof currentLevel.handleInput === 'function') {
             currentLevel.handleInput(key);
         }
     }
@@ -56,6 +63,7 @@ function update() {
     if (gameStarted && !window.gameOver) {
         levelManager.update();
     }
+    hud.update(16);
 }
 
 function render() {
@@ -64,30 +72,25 @@ function render() {
 
     if (!gameStarted) {
         hud.drawIntroMessage();
-    } else {
-        levelManager.render();
-        if (window.gameOver) {
-            if (!render.loggedGameOver) {
-                console.log("Game Over");
-                render.loggedGameOver = true;
-            }
-            hud.drawGameOverMessage();
-        } else {
-            render.loggedGameOver = false;
-        }
+        return;
     }
+
+    if (window.gameOver) {
+        hud.drawGameOverMessage();
+        return;
+    }
+
+    levelManager.render();
 }
 
 function drawBackground() {
     if (bgLoaded) {
-        ctx.drawImage(bgImage, 0, bgScrollY, canvas.width, canvas.height);
-        ctx.drawImage(bgImage, 0, bgScrollY - canvas.height, canvas.width, canvas.height);
-
         bgScrollY += bgScrollSpeed;
-
-        if (bgScrollY >= canvas.height) {
+        if (bgScrollY >= bgImage.height) {
             bgScrollY = 0;
         }
+        ctx.drawImage(bgImage, 0, -bgScrollY, canvas.width, bgImage.height);
+        ctx.drawImage(bgImage, 0, bgImage.height - bgScrollY, canvas.width, bgImage.height);
     }
 }
 
@@ -97,37 +100,12 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-function resetGame() {
-    window.gameOver = false;
-    gameStarted = true;
-
-    levelManager.currentLevel = 0;
-    levelManager.levels.forEach(level => {
-        if (level.hud) {
-            level.hud.resetLives();
-        }
-        level.currentCommandIndex = 0;
-        level.input = '';
-        level.commandHistory = [];
-        level.completed = false;
-        if (level.blinkInterval) {
-            clearInterval(level.blinkInterval);
-        }
-        level.blink = true;
-        level.blinkInterval = setInterval(() => {
-            level.blink = !level.blink;
-        }, 500);
-    });
-
-    levelManager.startLevel(0);
-}
-
 function audioManager() {
-    game.sounds.ambience = document.querySelector('#ambience');
-    game.sounds.typing = document.querySelector('#type');
-    game.sounds.error = document.querySelector('#error');
+    game.sounds.typing = document.getElementById('type');
+    game.sounds.ambience = document.getElementById('ambience');
+    game.sounds.error = document.getElementById('error');
 
-    game.sounds.ambience.volume = 0.2;
-    game.sounds.typing.volume = 0.2;
+    game.sounds.ambience.volume = 0.1;
+    game.sounds.typing.volume = 0.1;
     game.sounds.error.volume = 0.08;
 }

@@ -52,7 +52,6 @@ export class Gisee {
                 this.onSpriteLoaded();
             };
             img.onerror = () => {
-                console.warn(`Failed to load sprite: ${basePath}${spriteName}`);
                 this.onSpriteLoaded();
             };
         });
@@ -73,8 +72,6 @@ export class Gisee {
         if (this.accumulated >= this.frameInterval) {
             this.currentFrame = (this.currentFrame + 1) % this.states[this.currentState].length;
             this.accumulated = 0;
-
-            // Check if we should change state after completing a frame
             if (this.stateChangeRequested && this.currentFrame === 0) {
                 this.changeState();
                 this.stateChangeRequested = false;
@@ -90,7 +87,6 @@ export class Gisee {
         if (!this.ready) return;
         const frame = this.getCurrentFrame();
         if (!frame) return;
-
         this.updatePosition(frame, gameOverBox);
         this.updateState();
         this.handleMovement(frame, gameOverBox);
@@ -99,15 +95,12 @@ export class Gisee {
     updatePosition(frame, gameOverBox) {
         if (!this.positionInitialized || this.lastFrameHeight !== frame.height) {
             this.feetPosition = gameOverBox.y;
-
             if (!this.positionInitialized) {
                 this.x = gameOverBox.x + (gameOverBox.width / 2) - (frame.width / 2);
                 this.positionInitialized = true;
             }
-
             this.lastFrameHeight = frame.height;
         }
-
         this.y = this.feetPosition - frame.height;
     }
 
@@ -120,7 +113,6 @@ export class Gisee {
     changeState() {
         this.currentState = this.currentState === 'IDLE' ? 'MOVING' : 'IDLE';
         this.currentFrame = 0;
-
         if (this.currentState === 'MOVING') {
             this.direction = Math.random() > 0.5 ? 1 : -1;
             this.facingDirection = this.direction;
@@ -129,11 +121,9 @@ export class Gisee {
 
     handleMovement(frame, gameOverBox) {
         if (this.currentState !== 'MOVING') return;
-
         this.x += this.speed * this.direction;
         const leftBoundary = gameOverBox.x;
         const rightBoundary = gameOverBox.x + gameOverBox.width - frame.width;
-
         if (this.x < leftBoundary) {
             this.x = leftBoundary;
             this.direction = 1;
@@ -149,10 +139,8 @@ export class Gisee {
         if (!this.ready || !this.states[this.currentState].length) return;
         const frame = this.getCurrentFrame();
         if (!frame) return;
-
         this.lastX = this.x;
         this.lastY = this.y;
-
         if (this.facingDirection === -1) {
             this.ctx.save();
             this.ctx.scale(-1, 1);

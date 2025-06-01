@@ -25,6 +25,16 @@ export class Hearts {
         this.heartScale = 1.0;
         this.heartScaleDirection = 0.01;
         this.heartPulseActive = false;
+
+        this.containerWidth = 250;
+        this.containerHeight = 50;
+        this.containerX = 40;
+        this.containerY = 80;
+        this.heartWidth = 35;
+        this.heartHeight = 35;
+        this.spacing = 12;
+        this.totalHeartsWidth = (this.maxLives * this.heartWidth) + ((this.maxLives - 1) * this.spacing);
+        this.startX = this.containerX + Math.round((this.containerWidth - this.totalHeartsWidth) / 2);
     }
 
     updatePulse() {
@@ -43,25 +53,21 @@ export class Hearts {
         if (!this.heartsLoaded) return;
         const ctx = this.ctx;
         ctx.save();
-        const containerWidth = 250, containerHeight = 50, containerX = 40, containerY = 80;
-        const heartWidth = 35, heartHeight = 35, spacing = 12;
-        const totalHeartsWidth = (this.maxLives * heartWidth) + ((this.maxLives - 1) * spacing);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(containerX, containerY, containerWidth, containerHeight);
+        ctx.fillRect(this.containerX, this.containerY, this.containerWidth, this.containerHeight);
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 1;
-        ctx.strokeRect(containerX, containerY, containerWidth, containerHeight);
-        const startX = containerX + Math.round((containerWidth - totalHeartsWidth) / 2);
+        ctx.strokeRect(this.containerX, this.containerY, this.containerWidth, this.containerHeight);
         for (let i = 0; i < this.maxLives; i++) {
             const heart = i < this.lives ? this.hearts[i].full : this.hearts[i].empty;
             const scale = (this.heartPulseActive && i < this.lives) ? this.heartScale : 1.0;
-            const heartX = startX + (i * (heartWidth + spacing));
-            const heartY = containerY + Math.round((containerHeight - heartHeight) / 2);
+            const heartX = this.startX + (i * (this.heartWidth + this.spacing));
+            const heartY = this.containerY + Math.round((this.containerHeight - this.heartHeight) / 2);
             ctx.save();
-            ctx.translate(heartX + heartWidth / 2, heartY + heartHeight / 2);
+            ctx.translate(heartX + this.heartWidth / 2, heartY + this.heartHeight / 2);
             ctx.scale(scale, scale);
-            ctx.translate(-heartWidth / 2, -heartHeight / 2);
-            ctx.drawImage(heart.sprite.img, heart.sprite.sourceX, heart.sprite.sourceY, heart.sprite.sourceWidth, heart.sprite.sourceHeight, 0, 0, heartWidth, heartHeight);
+            ctx.translate(-this.heartWidth / 2, -this.heartHeight / 2);
+            ctx.drawImage(heart.sprite.img, heart.sprite.sourceX, heart.sprite.sourceY, heart.sprite.sourceWidth, heart.sprite.sourceHeight, 0, 0, this.heartWidth, this.heartHeight);
             ctx.restore();
         }
         ctx.restore();

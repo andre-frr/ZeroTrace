@@ -14,7 +14,16 @@ export class LevelManager {
             return;
         }
         this.currentLevel = levelIndex;
-        this.levels[levelIndex].hud?.startTimer?.();
+
+        const level = this.levels[levelIndex];
+        const timeLimit = level.timeLimit || 45;
+
+        if (level.hud?.resetAllTimers) {
+            level.hud.resetAllTimers();
+        }
+        if (level.hud?.startTimer) {
+            level.hud.startTimer(timeLimit);
+        }
     }
 
     update() {
