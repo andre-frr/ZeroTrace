@@ -30,21 +30,39 @@ Estudantes e entusiastas de programação com gosto por desafios de digitação 
 ## 🕹 Controlo
 
 - Exclusivamente com **teclado físico**
-- Penalização opcional no tempo ao usar `Backspace`
 
 ## 🗂 Estrutura do Projeto
 
-- `assets/`: Sons, imagens e fontes do HUD e ambiente
-- `css/`: Estilo visual estilo terminal
-- `js/core/`: Ciclo de jogo, input, IA da deteção, som
-- `js/ui/`: HUD, menus e transições
-- `levels/`: Scripts de cada terminal
-- `index.html`: Ponto de entrada
-- `main.js`: Inicialização
+- `assets/`
+    - `audio/`: Sons do jogo
+    - `gisee/`: Recursos visuais do Gisee
+    - `images/`: Imagens do HUD e ambiente
+- `css/`
+    - `styles.css`: Estilo visual estilo terminal
+- `js/`
+    - `core/`: Gestão de input e níveis
+        - `inputManager.js`
+        - `levelManager.js`
+    - `entities/`: Entidades do jogo (vidas, etc.)
+        - `entity.js`
+        - `heartEmpty.js`
+        - `heartFull.js`
+    - `levels/`: Scripts de cada terminal/nivel
+        - `base.js`
+        - `level1.js`
+        - `level2.js`
+        - `level3.js`
+        - `level4.js`
+    - `ui/`: HUD, sistema de vidas, Gisee
+        - `gisee.js`
+        - `hearts.js`
+        - `hud.js`
+    - `main.js`: Inicialização do jogo
+- `lib/`: Bibliotecas externas (ex: extend.js)
+- `zerotrace.html`: Ponto de entrada
 
 ## 📜 Níveis
 
-- **Tutorial**: Introdução às mecânicas
 - **Nível 1 – Terminal Externo**: Frase simples, tempo generoso
 - **Nível 2 – Base de Dados**: Frase média, tempo moderado
 - **Nível 3 – Firewall Interna**: Frase longa, tempo apertado
@@ -59,7 +77,6 @@ Estudantes e entusiastas de programação com gosto por desafios de digitação 
 
 - Sons de tecla e erro
 - Música eletrónica ambiente
-- Alarme progressivo
 
 ## 🛠 Tecnologias
 

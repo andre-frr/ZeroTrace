@@ -9,7 +9,9 @@ const Level3 = BaseLevel.extend(function () {
             'grep -r "classified" /mnt',
             'openssl enc -aes-256-cbc -d -in secret.enc',
             'iptables -A INPUT -p tcp --dport 22 -j ACCEPT',
-            'nc -lvnp 4444'
+            'nc -lvnp 4444',
+            'sudo systemctl restart firewall',
+            'journalctl -u firewall | tail -n 20'
         ];
         this.super(ctx, game, name, commands);
         this.timeLimit = 75;

@@ -4,12 +4,14 @@ const Level1 = BaseLevel.extend(function () {
     this.constructor = function (ctx, game) {
         const name = 'Level 1';
         const commands = [
-            'connect -secure',
-            'decrypt -key FIBX',
-            'extract -data classified',
-            'bypass -firewall',
-            'upload -payload',
-            'disconnect -trace'
+            'login',
+            'ls -l',
+            'cd /home/user',
+            'cat welcome.txt',
+            'ps aux',
+            'grep "FIB" processes.log',
+            'mkdir test_folder',
+            'touch hack.txt'
         ];
         this.super(ctx, game, name, commands);
         this.timeLimit = 90;
