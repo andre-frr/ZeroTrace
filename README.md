@@ -83,7 +83,7 @@ Estudantes e entusiastas de programação com gosto por desafios de digitação 
 - **HTML5 Canvas**
 - **JavaScript** orientado a objetos
 - **CSS3**
-- **Framework `extend.js` (da UC)**
+- **Framework `extend.js`**
 - **WebStorm** / VS Code
 
 ## 📦 Requisitos
@@ -96,5 +96,4 @@ Estudantes e entusiastas de programação com gosto por desafios de digitação 
 Desenvolvido por:
 
 - André Ferreira – 220001208
-- David Berec – 220000909
 - Diogo Pedro – 220000891
